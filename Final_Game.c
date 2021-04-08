@@ -33,6 +33,11 @@ extern char menu_theme_music_data[];
 extern const byte level_select_pal[16];
 extern const byte level_select_rle[];
 
+char pad;	// controller flags
+char i;
+int arrow_x =25;
+int arrow_y =70;
+
 /*{pal:"nes",layout:"nes"}*/
 const char PALETTE[32] = { 
   0x03,			// screen color
@@ -70,26 +75,46 @@ void show_title_screen(const byte* pal, const byte* rle) {
   ppu_on_all();
 }
 
+void menu_controls(){
+  
+  pad = pad_trigger(i);
+  
+  if (pad & PAD_DOWN && arrow_y == 70) {
+      arrow_y = 165;           
+    }
+    
+  if (pad & PAD_UP && arrow_y == 165) {
+      arrow_y = 70;
+    }
+  
+  if (pad & PAD_LEFT && arrow_x == 138) {
+              arrow_x = 25;      
+    }
+    
+  if (pad & PAD_RIGHT && arrow_x == 25) {
+            arrow_x = 138;
+    }
+                   
+}
 
 
 
 void main(void)
 {
+  char oam_id;
   //Play Menu Theme
   famitone_init(menu_theme_music_data);
   nmi_set_callback(famitone_update);
   music_play(0);
   
   setup_graphics();
-  // draw message  
-  //vram_adr(NTADR_A(2,2));
-  //vram_write("HELLO, WORLD!", 12);
-  // enable rendering
-    show_title_screen(level_select_pal,level_select_rle);
+  show_title_screen(level_select_pal,level_select_rle);
 
   
   ppu_on_all();
-  // infinite loop
   while(1) {
+    menu_controls();
+    oam_id = 0;
+    oam_id = oam_spr(arrow_x, arrow_y, 0x1f, 0, oam_id);
   }
 }
