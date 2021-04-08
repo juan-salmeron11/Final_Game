@@ -46,15 +46,15 @@ int arrow_y =70;
 const char PALETTE[32] = { 
   0x03,			// screen color
 
-  0x11,0x30,0x27,0x0,	// background palette 0
-  0x1c,0x20,0x2c,0x0,	// background palette 1
-  0x00,0x10,0x20,0x0,	// background palette 2
-  0x06,0x16,0x26,0x0,   // background palette 3
+  0x11,0x30,0x27,0x00,	// background palette 0
+  0x1C,0x20,0x2C,0x00,	// background palette 1
+  0x00,0x10,0x20,0x00,	// background palette 2
+  0x06,0x16,0x26,0x00,   // background palette 3
 
-  0x16,0x35,0x24,0x0,	// sprite palette 0
-  0x00,0x37,0x25,0x0,	// sprite palette 1
-  0x0d,0x2d,0x3a,0x0,	// sprite palette 2
-  0x0d,0x27,0x2a	// sprite palette 3
+  0x02,0x35,0x11,0x00,	// sprite palette 0
+  0x00,0x37,0x25,0x00,	// sprite palette 1
+  0x0D,0x2D,0x3A,0x00,	// sprite palette 2
+  0x0D,0x27,0x2A	// sprite palette 3
 };
 
 // setup PPU and tables
@@ -105,6 +105,7 @@ void menu_controls(){
   
   //Select Choice sfx
   if (pad & PAD_START) {
+    	music_stop();
       	sfx_play(1,0);
     }
                    
@@ -119,7 +120,7 @@ void main(void)
   famitone_init(menu_theme_music_data);
   nmi_set_callback(famitone_update);
   sfx_init(sfx_sounds);
-  //music_play(0);
+  music_play(0);
   
   setup_graphics();
   show_title_screen(level_select_pal,level_select_rle);
