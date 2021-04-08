@@ -25,6 +25,10 @@
 /********* MUSIC SETTINGS *********************************/
 //#link "famitone2.s"
 //#link "menu_theme.s"
+//#link "sfx.s"
+//#link "demosounds.s"
+extern char demo_sounds[];
+extern char sfx_sounds[];
 extern char menu_theme_music_data[];
 
 
@@ -80,19 +84,28 @@ void menu_controls(){
   pad = pad_trigger(i);
   
   if (pad & PAD_DOWN && arrow_y == 70) {
+      sfx_play(0,0);
       arrow_y = 165;           
     }
     
   if (pad & PAD_UP && arrow_y == 165) {
+      sfx_play(0,0);
       arrow_y = 70;
     }
   
   if (pad & PAD_LEFT && arrow_x == 138) {
-              arrow_x = 25;      
+      	sfx_play(0,0);
+    	arrow_x = 25;      
     }
     
   if (pad & PAD_RIGHT && arrow_x == 25) {
-            arrow_x = 138;
+      	sfx_play(0,0);
+    	arrow_x = 138;
+    }
+  
+  //Select Choice sfx
+  if (pad & PAD_START) {
+      	sfx_play(1,0);
     }
                    
 }
@@ -105,7 +118,8 @@ void main(void)
   //Play Menu Theme
   famitone_init(menu_theme_music_data);
   nmi_set_callback(famitone_update);
-  music_play(0);
+  sfx_init(sfx_sounds);
+  //music_play(0);
   
   setup_graphics();
   show_title_screen(level_select_pal,level_select_rle);
