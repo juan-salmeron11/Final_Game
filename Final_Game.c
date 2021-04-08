@@ -13,6 +13,7 @@
 
 // link the pattern table into CHR ROM
 //#link "chr_generic.s"
+//#link "Level_Select.s"
 
 // BCD arithmetic support
 #include "bcd.h"
@@ -21,6 +22,11 @@
 // VRAM update buffer
 #include "vrambuf.h"
 //#link "vrambuf.c"
+
+
+
+extern const byte level_select_pal[16];
+extern const byte level_select_rle[];
 
 /*{pal:"nes",layout:"nes"}*/
 const char PALETTE[32] = { 
@@ -40,18 +46,38 @@ const char PALETTE[32] = {
 // setup PPU and tables
 void setup_graphics() {
   // clear sprites
-  oam_clear();
+  oam_hide_rest(0);
   // set palette colors
   pal_all(PALETTE);
+  // turn on PPU
+  ppu_on_all();
 }
+
+void show_title_screen(const byte* pal, const byte* rle) {
+  // disable rendering
+  ppu_off();
+  // set palette, virtual bright to 0 (total black)
+  pal_bg(pal);
+  // unpack nametable into the VRAM
+  vram_adr(0x2000);
+  vram_unrle(rle);
+  // enable rendering
+  ppu_on_all();
+}
+
+
+
 
 void main(void)
 {
   setup_graphics();
   // draw message  
-  vram_adr(NTADR_A(2,2));
-  vram_write("HELLO, WORLD!", 12);
+  //vram_adr(NTADR_A(2,2));
+  //vram_write("HELLO, WORLD!", 12);
   // enable rendering
+    show_title_screen(level_select_pal,level_select_rle);
+
+  
   ppu_on_all();
   // infinite loop
   while(1) {
