@@ -1,4 +1,3 @@
-
 #include <stdlib.h>
 #include <string.h>
 
@@ -23,7 +22,13 @@
 #include "vrambuf.h"
 //#link "vrambuf.c"
 
+/********* MUSIC SETTINGS *********************************/
+//#link "famitone2.s"
+//#link "menu_theme.s"
+extern char menu_theme_music_data[];
 
+
+/*********************************************************/
 
 extern const byte level_select_pal[16];
 extern const byte level_select_rle[];
@@ -70,6 +75,11 @@ void show_title_screen(const byte* pal, const byte* rle) {
 
 void main(void)
 {
+  //Play Menu Theme
+  famitone_init(menu_theme_music_data);
+  nmi_set_callback(famitone_update);
+  music_play(0);
+  
   setup_graphics();
   // draw message  
   //vram_adr(NTADR_A(2,2));
