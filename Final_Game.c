@@ -39,6 +39,7 @@ extern const byte level_select_rle[];
 
 char pad;	// controller flags
 char i;
+char oam_id;
 int arrow_x =25;
 int arrow_y =70;
 
@@ -58,6 +59,28 @@ const char PALETTE[32] = {
 };
 
 // setup PPU and tables
+void setup_graphics(void);
+void show_title_screen(int x);
+void level_screen(const byte* pal, const byte* rle);
+void menu_controls(void);
+
+
+void main(void)
+{
+  
+  //Play Menu Theme
+  famitone_init(menu_theme_music_data);
+  nmi_set_callback(famitone_update);
+  sfx_init(sfx_sounds);  
+  setup_graphics();
+  level_screen(level_select_pal,level_select_rle);
+
+  
+
+}
+
+
+// setup PPU and tables
 void setup_graphics() {
   // clear sprites
   oam_hide_rest(0);
@@ -67,16 +90,22 @@ void setup_graphics() {
   ppu_on_all();
 }
 
-void show_title_screen(const byte* pal, const byte* rle) {
-  // disable rendering
+void level_screen(const byte* pal, const byte* rle) {
   ppu_off();
-  // set palette, virtual bright to 0 (total black)
   pal_bg(pal);
-  // unpack nametable into the VRAM
   vram_adr(0x2000);
   vram_unrle(rle);
-  // enable rendering
   ppu_on_all();
+  music_play(0);
+
+  
+    while(1) {
+    menu_controls();
+    oam_id = 0;
+    oam_id = oam_spr(arrow_x, arrow_y, 0x1f, 0, oam_id);
+        if (oam_id!=0) oam_hide_rest(oam_id);
+
+  }
 }
 
 void menu_controls(){
@@ -84,53 +113,70 @@ void menu_controls(){
   pad = pad_trigger(i);
   
   if (pad & PAD_DOWN && arrow_y == 70) {
-      sfx_play(2,0);
+      sfx_play(0,0);
       arrow_y = 165;           
     }
     
   if (pad & PAD_UP && arrow_y == 165) {
-      sfx_play(2,0);
+      sfx_play(0,0);
       arrow_y = 70;
     }
   
   if (pad & PAD_LEFT && arrow_x == 138) {
-      	sfx_play(2,0);
+      	sfx_play(0,0);
     	arrow_x = 25;      
     }
     
   if (pad & PAD_RIGHT && arrow_x == 25) {
-      	sfx_play(2,0);
+      	sfx_play(0,0);
     	arrow_x = 138;
     }
   
   //Select Choice sfx
   if (pad & PAD_START) {
     	music_stop();
-    	sfx_init(sfx_sounds);
       	sfx_play(1,0);
+    if (arrow_x == 25 && arrow_y ==70){
+      show_title_screen(1);
+    
+    }
+    else if (arrow_x == 138 && arrow_y ==70){
+    show_title_screen(2);}
+    else if (arrow_x == 25 && arrow_y ==165){
+    show_title_screen(3);}
+    else{
+    show_title_screen(4);}
     }
                    
 }
 
 
-
-void main(void)
-{
-  char oam_id;
-  //Play Menu Theme
-  famitone_init(menu_theme_music_data);
-  nmi_set_callback(famitone_update);
-  sfx_init(demo_sounds);
-  music_play(0);
-  
-  setup_graphics();
-  show_title_screen(level_select_pal,level_select_rle);
-
-  
-  ppu_on_all();
-  while(1) {
-    menu_controls();
-    oam_id = 0;
-    oam_id = oam_spr(arrow_x, arrow_y, 0x1f, 0, oam_id);
+void show_title_screen(int x) {
+  ppu_off();
+  vram_adr(NAMETABLE_A);
+  vram_fill(0,1024);
+  oam_clear();
+  if(x==1){
+    vram_adr(NTADR_A(11,14));
+  vram_write("City Level", 10);
   }
+  else   if(x==2){
+    vram_adr(NTADR_A(10,14));
+  vram_write("Forest Level", 12);
+  }
+  else   if(x==3){
+    vram_adr(NTADR_A(11,14));
+  vram_write("Lake Level", 10);
+  }
+  else{
+    vram_adr(NTADR_A(9,14));
+  vram_write("Mountain Level", 14);
+  }
+  ppu_on_all();
+  while(x){
+  pad = pad_trigger(i);
+  if(pad&PAD_START){
+  level_screen(level_select_pal,level_select_rle);
+
+  }};
 }
