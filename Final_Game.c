@@ -70,8 +70,7 @@ void main(void)
   
   //Play Menu Theme
   famitone_init(menu_theme_music_data);
-  nmi_set_callback(famitone_update);
-  sfx_init(sfx_sounds);  
+  nmi_set_callback(famitone_update);  
   setup_graphics();
   level_screen(level_select_pal,level_select_rle);
 
@@ -112,29 +111,34 @@ void menu_controls(){
   
   pad = pad_trigger(i);
   
-  if (pad & PAD_DOWN && arrow_y == 70) {
-      sfx_play(0,0);
-      arrow_y = 165;           
+  if (pad & PAD_DOWN && arrow_y == 70) {    
+      	sfx_init(demo_sounds);
+      	sfx_play(2,0);
+      	arrow_y = 165;           
     }
     
   if (pad & PAD_UP && arrow_y == 165) {
-      sfx_play(0,0);
-      arrow_y = 70;
+      	sfx_init(demo_sounds);
+      	sfx_play(2,0);
+      	arrow_y = 70;
     }
   
   if (pad & PAD_LEFT && arrow_x == 138) {
-      	sfx_play(0,0);
+      	sfx_init(demo_sounds);
+    	sfx_play(2,0);
     	arrow_x = 25;      
     }
     
   if (pad & PAD_RIGHT && arrow_x == 25) {
-      	sfx_play(0,0);
+      	sfx_init(demo_sounds);
+    	sfx_play(2,0);
     	arrow_x = 138;
     }
   
   //Select Choice sfx
   if (pad & PAD_START) {
     	music_stop();
+    	sfx_init(sfx_sounds);
       	sfx_play(1,0);
     if (arrow_x == 25 && arrow_y ==70){
       show_title_screen(1);
