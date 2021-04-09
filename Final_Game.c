@@ -96,6 +96,7 @@ void level_screen(const byte* pal, const byte* rle) {
   vram_unrle(rle);
   ppu_on_all();
   music_play(0);
+  sfx_init(demo_sounds);
 
   
     while(1) {
@@ -112,25 +113,21 @@ void menu_controls(){
   pad = pad_trigger(i);
   
   if (pad & PAD_DOWN && arrow_y == 70) {    
-      	sfx_init(demo_sounds);
       	sfx_play(2,0);
       	arrow_y = 165;           
     }
     
   if (pad & PAD_UP && arrow_y == 165) {
-      	sfx_init(demo_sounds);
       	sfx_play(2,0);
       	arrow_y = 70;
     }
   
   if (pad & PAD_LEFT && arrow_x == 138) {
-      	sfx_init(demo_sounds);
     	sfx_play(2,0);
     	arrow_x = 25;      
     }
     
-  if (pad & PAD_RIGHT && arrow_x == 25) {
-      	sfx_init(demo_sounds);
+  if (pad & PAD_RIGHT && arrow_x == 25) {      	
     	sfx_play(2,0);
     	arrow_x = 138;
     }
@@ -180,6 +177,7 @@ void show_title_screen(int x) {
   while(x){
   pad = pad_trigger(i);
   if(pad&PAD_START){
+  sfx_init(demo_sounds);
   level_screen(level_select_pal,level_select_rle);
 
   }};
