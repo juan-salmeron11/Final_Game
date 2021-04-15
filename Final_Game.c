@@ -40,8 +40,10 @@ extern const byte level_select_rle[];
 char pad;	// controller flags
 char i;
 char oam_id;
+int j;
 int arrow_x =25;
 int arrow_y =70;
+bool cleared[4];
 
 /*{pal:"nes",layout:"nes"}*/
 const char PALETTE[32] = { 
@@ -67,6 +69,9 @@ void menu_controls(void);
 
 void main(void)
 {
+  for(j = 0;j<4;j++){
+    cleared[j] = false;
+  }
   
   //Play Menu Theme
   famitone_init(menu_theme_music_data);
@@ -94,8 +99,49 @@ void level_screen(const byte* pal, const byte* rle) {
   pal_bg(pal);
   vram_adr(0x2000);
   vram_unrle(rle);
+  
+  for(j = 0;j<4;j++){
+    if(cleared[j] == true){
+      if(j == 0){
+        vram_adr(NTADR_A(5,8));
+        vram_write("        ", 8); 
+        vram_adr(NTADR_A(5,9));
+        vram_write(" CLEAR  ", 8); 
+        vram_adr(NTADR_A(5,10));
+        vram_write("        ", 8);
+      }
+      if(j == 1){
+        vram_adr(NTADR_A(19,8));
+        vram_write("        ", 8); 
+        vram_adr(NTADR_A(19,9));
+        vram_write(" CLEAR  ", 8); 
+        vram_adr(NTADR_A(19,10));
+        vram_write("        ", 8);
+      }
+      if(j == 2){
+        vram_adr(NTADR_A(5,20));
+        vram_write("        ", 8); 
+        vram_adr(NTADR_A(5,21));
+        vram_write(" CLEAR  ", 8); 
+        vram_adr(NTADR_A(5,22));
+        vram_write("        ", 8);
+      }
+      if(j == 3){
+        vram_adr(NTADR_A(19,20));
+        vram_write("        ", 8); 
+        vram_adr(NTADR_A(19,21));
+        vram_write(" CLEAR  ", 8); 
+        vram_adr(NTADR_A(19,22));
+        vram_write("        ", 8);
+      }
+    }
+  
+  
+  }
+  
+  
   ppu_on_all();
-  music_play(0);
+  //music_play(0);
   sfx_init(demo_sounds);
 
   
@@ -138,15 +184,15 @@ void menu_controls(){
     	sfx_init(sfx_sounds);
       	sfx_play(1,0);
     if (arrow_x == 25 && arrow_y ==70){
-      show_title_screen(1);
+      show_title_screen(0);
     
     }
     else if (arrow_x == 138 && arrow_y ==70){
-    show_title_screen(2);}
+    show_title_screen(1);}
     else if (arrow_x == 25 && arrow_y ==165){
-    show_title_screen(3);}
+    show_title_screen(2);}
     else{
-    show_title_screen(4);}
+    show_title_screen(3);}
     }
                    
 }
@@ -157,15 +203,15 @@ void show_title_screen(int x) {
   vram_adr(NAMETABLE_A);
   vram_fill(0,1024);
   oam_clear();
-  if(x==1){
+  if(x==0){
     vram_adr(NTADR_A(11,14));
   vram_write("City Level", 10);
   }
-  else   if(x==2){
+  else   if(x==1){
     vram_adr(NTADR_A(10,14));
   vram_write("Forest Level", 12);
   }
-  else   if(x==3){
+  else   if(x==2){
     vram_adr(NTADR_A(11,14));
   vram_write("Lake Level", 10);
   }
@@ -174,10 +220,11 @@ void show_title_screen(int x) {
   vram_write("Mountain Level", 14);
   }
   ppu_on_all();
-  while(x){
+  while(1){
   pad = pad_trigger(i);
   if(pad&PAD_START){
   sfx_init(demo_sounds);
+    cleared[x] = true;
   level_screen(level_select_pal,level_select_rle);
 
   }};
