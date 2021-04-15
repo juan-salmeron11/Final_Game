@@ -28,6 +28,8 @@
 //#link "menu_theme.s"
 //#link "sfx.s"
 //#link "demosounds.s"
+//#link "boatSong.s"
+extern char boatSong_music_data[];
 extern char demo_sounds[];
 extern char sfx_sounds[];
 extern char menu_theme_music_data[];
@@ -203,10 +205,10 @@ const char PALETTE[32] = {
   0x00,0x10,0x20,0x00,	// background palette 2
   0x06,0x16,0x26,0x00,   // background palette 3
 
-  0x02,0x35,0x11,0x00,	// sprite palette 0
-  0x00,0x37,0x25,0x00,	// sprite palette 1
-  0x0D,0x2D,0x3A,0x00,	// sprite palette 2
-  0x0D,0x27,0x2A	// sprite palette 3
+  0x0A,0x28,0x16,0x00,	// sprite palette 0
+  0x0f,0x20,0x16,0x00,	// sprite palette 1 
+  0x28,0x30,0x21,0x00,	// sprite palette 2 
+  0x19,0x30,0x2F	// sprite palette 3
 };
 
 // setup PPU and tables
@@ -602,6 +604,7 @@ void scroll_background() {
     if(totalBags == 1){
       cleared[2] = true;
       scroll(0,0);
+      music_stop();
     level_screen(level_select_pal,level_select_rle);
     } 
     
@@ -631,14 +634,22 @@ void scroll_background() {
     //End game when lives run out PLACE HOLDER
     if (lives <= 0){
       scroll(0,0);
+      music_stop();
   	level_screen(level_select_pal,level_select_rle);
     }
     }
 }
 
 void river(){
+  delay(60
+
+);
+  sfx_init(demo_sounds);
+  famitone_init(boatSong_music_data);
+  nmi_set_callback(famitone_update);
+  music_play(0);
+
   show_screen_scrolling(river_pal, river_rle,river_rle);
   scroll_background();
   
-
 }
