@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <string.h>
-
 #include <stdlib.h>
 #include <string.h>
 
@@ -38,10 +37,17 @@ extern char menu_theme_music_data[];
 
 
 
+/*********************************************************************************************************************/
+
+		// 	META SPRITES  
+
+/*********************************************************************************************************************/
 
 
 
-/**********************************METASPRITES  **********************************************************************/
+
+
+/********************************* META SPRITES FOR MOTORCYCLE GAME***************************************************/
 // define a 2x4 metasprite for the motorcycle
 #define DEF_METASPRITE_2x2(name,code,pal)\
 const unsigned char name[]={\
@@ -83,25 +89,70 @@ const unsigned char name[]={\
         8,      8,      (code)+3,   pal, \
         128};
 
+/********************************* META SPRITES FOR BOAT GAME***************************************************/
+
+// define a 2x4 metasprite for the Boat Player
+#define DEF_METASPRITE_BOAT(name,code,pal)\
+const unsigned char name[]={\
+        0,      0,      (code)+0,   pal, \
+        0,      8,      (code)+1,   pal, \
+        8,      0,      (code)+2,   pal, \
+        8,      8,      (code)+3,   pal, \
+        16,      0,      (code)+4,   pal, \
+        16,      8,      (code)+5,   pal, \
+        24,      0,      (code)+6,   pal, \
+        24,      8,      (code)+7,   pal, \
+        128};
+// define a 2x4 metasprite for SUBMARINE ENEMY
+#define DEF_METASPRITE_SUBMARINE(name,code,pal)\
+const unsigned char name[]={\
+        0,      0,      (code)+0,   pal, \
+        0,      8,      (code)+1,   pal, \
+        8,      0,      (code)+2,   pal, \
+        8,      8,      (code)+3,   pal, \
+        16,      0,      (code)+4,   pal, \
+        16,      8,      (code)+5,   pal, \
+        24,      0,      (code)+6,   pal, \
+        24,      8,      (code)+7,   pal, \
+        128};
+//Meta Sprite for the TRASH BAG
+#define DEF_METASPRITE_BAG(name, code, pal)\
+const unsigned char name[]={\
+        0,      0,      (code)+0,   pal, \
+        0,      8,      (code)+1,   pal, \
+        8,      0,      (code)+2,   pal, \
+        8,      8,      (code)+3,   pal, \
+        128};
+//Meta Sprite for CROCODILE ENEMY
+#define DEF_METASPRITE_CROC(name, code, pal)\
+const unsigned char name[]={\
+        0,      0,      (code)+0,   pal, \
+        0,      8,      (code)+1,   pal, \
+        8,      0,      (code)+2,   pal, \
+        8,      8,      (code)+3,   pal, \
+        128};
+
 
 /**********************************METASPRITE ANIMATION SEQUENCES **********************************************************************/
+
+
+
+/********************************** MOTORCYCLE METASPRITE ANIMATION SEQUENCES **********************************************************************/
+
 
 //Meta Sprites for Driving animation of the Motorcycle
 DEF_METASPRITE_2x2(playerRRun1, 0xcc, 1);
 DEF_METASPRITE_2x2(playerRRun2, 0xec, 1);
-
 
 //Meta sprite for Driving animation of Van vehicle
 DEF_METASPRITE_VAN(vanMove1, 0xc4, 2);
 DEF_METASPRITE_VAN(vanMove2, 0xe4, 2);
 
 //Meta Sprite for Gas Can
-DEF_METASPRITE_GAS(trashMove1, 0xd4 , 1);
-DEF_METASPRITE_GAS(trashMove2, 0xd8 , 1);
+DEF_METASPRITE_GAS(gasCan, 0xd4 , 1);
 
 //Meta Sprite for Cone
-DEF_METASPRITE_CONE(crocMove1, 0xdc , 3);
-DEF_METASPRITE_CONE(crocMove2, 0xe0 , 3);
+DEF_METASPRITE_CONE(cone, 0xdc , 1);
 
 //Motorcycle Movement Sequence
 const unsigned char* const playerRunSeq[16] = {
@@ -123,6 +174,47 @@ const unsigned char* const VanRunSeq[16] = {
   vanMove1, vanMove2,
 };
 
+
+
+
+/***************************** BOAT GAME ANIMATIONS *************************************************************************/
+
+//Boat Movement Sequence
+//Meta Sprites for Driving animation of boat
+DEF_METASPRITE_BOAT(boatRRun1, 0xcc, 1);
+DEF_METASPRITE_BOAT(boatRRun2, 0xec, 1);
+
+//Meta sprite for Driving animation of submarine
+DEF_METASPRITE_SUBMARINE(subMove1, 0xc4, 2);
+DEF_METASPRITE_SUBMARINE(subMove2, 0xe4, 2);
+
+//Meta Sprite for Trash Bag
+DEF_METASPRITE_BAG(trashMove1, 0xd4 , 1);
+DEF_METASPRITE_BAG(trashMove2, 0xd8 , 1);
+
+//Meta Sprite for Croc
+DEF_METASPRITE_CROC(crocMove1, 0xdc , 3);
+DEF_METASPRITE_CROC(crocMove2, 0xe0 , 3);
+
+const unsigned char* const boatRunSeq[16] = {
+  boatRRun1, boatRRun2, boatRRun1, 
+  boatRRun1, boatRRun2, boatRRun1, 
+  boatRRun1, boatRRun2,
+  boatRRun1, boatRRun2, boatRRun1, 
+  boatRRun1, boatRRun2, boatRRun1, 
+  boatRRun1, boatRRun2,
+};
+
+//VAN Movement Sequence
+const unsigned char* const submarineRunSeq[16] = {
+  subMove1, subMove2, subMove1, 
+  subMove1, subMove2, subMove1, 
+  subMove1, subMove2,
+  subMove1, subMove2, subMove1, 
+  subMove1, subMove2, subMove1, 
+  subMove1, subMove2,
+};
+
 //Croc Movement Sequence
 const unsigned char* const CrocSeq[16] = {
   crocMove1, crocMove2, crocMove1, 
@@ -133,7 +225,7 @@ const unsigned char* const CrocSeq[16] = {
   crocMove1, crocMove2,
 };
 
-//Croc Movement Sequence
+//Trash Bag Movement Sequence
 const unsigned char* const TrashSeq[16] = {
   trashMove1, trashMove2, trashMove1, 
   trashMove1, trashMove2, trashMove1, 
@@ -144,9 +236,14 @@ const unsigned char* const TrashSeq[16] = {
 };
 
 
+
+/********************************* END OF META SPRITES AND ANIMATIONS ************************************************************/
+
 #define NUM_ACTORS 1
 #define NUM_ENEMIES 3
 
+
+/********************************* BIKE GAME DECLARATIONS ****************************/
 byte actor_x[NUM_ACTORS];
 byte actor_y[NUM_ACTORS];
 sbyte actor_dx[NUM_ACTORS];
@@ -171,6 +268,45 @@ byte cone_x;
 byte cone_y;
 sbyte cone_dx = -1;
 sbyte cone_dy;
+
+
+
+
+
+
+
+/********************************* BOAT GAME DECLARATIONS ****************************/
+
+// Boat player declaration
+byte boat_x[NUM_ACTORS];
+byte boat_y[NUM_ACTORS];
+sbyte boat_dx[NUM_ACTORS];
+sbyte boat_dy[NUM_ACTORS];
+
+//Trash bag declaration
+byte bag_x[NUM_ACTORS];
+byte bag_y[NUM_ACTORS];
+sbyte bag_dx[NUM_ACTORS];
+sbyte bag_dy[NUM_ACTORS];
+
+
+//Submarine vehicle declaration
+byte sub_x[NUM_ENEMIES];
+byte sub_y[NUM_ENEMIES];
+sbyte sub_dx[NUM_ENEMIES];
+sbyte sub_dy[NUM_ENEMIES];
+
+
+//Crocodile declaration
+byte croc_x;
+byte croc_y;
+sbyte croc_dx = -1;
+sbyte croc_dy;
+
+
+
+
+
 //Boat has 3 lives
 int lives = 3;
 //When number of trash bags collected is 5, you win
@@ -218,7 +354,6 @@ void show_title_screen(int x);
 void level_screen(const byte* pal, const byte* rle);
 void menu_controls(void);
 void river(void);
-void city(void);
 void scroll_background(void);
 void show_screen_scrolling(const byte* pal, const byte* rle,const byte* rle2);
 
@@ -255,7 +390,8 @@ void level_screen(const byte* pal, const byte* rle) {
   pal_bg(pal);
   vram_adr(0x2000);
   vram_unrle(rle);
-  
+  famitone_init(menu_theme_music_data);
+  nmi_set_callback(famitone_update);
   
   for(j = 0;j<4;j++){
     if(cleared[j] == true){
@@ -295,10 +431,9 @@ void level_screen(const byte* pal, const byte* rle) {
   
   
   }
-  
-  
+   
   ppu_on_all();
-  //music_play(0);
+  music_play(0);
   sfx_init(demo_sounds);
 
   
@@ -643,24 +778,9 @@ void scroll_background() {
     }
 }
 
+/**********************************RIVER STAGE*******************************************************************/
 void river(){
-  delay(60
-
-);
-  sfx_init(demo_sounds);
-  famitone_init(boatSong_music_data);
-  nmi_set_callback(famitone_update);
-  music_play(0);
-
-  show_screen_scrolling(river_pal, river_rle,river_rle);
-  scroll_background();
-  
-}
-
-void city(){
-  delay(60
-
-);
+  delay(60);
   sfx_init(demo_sounds);
   famitone_init(boatSong_music_data);
   nmi_set_callback(famitone_update);
