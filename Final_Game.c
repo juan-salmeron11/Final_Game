@@ -90,6 +90,7 @@ const unsigned char name[]={\
 DEF_METASPRITE_2x2(playerRRun1, 0xcc, 1);
 DEF_METASPRITE_2x2(playerRRun2, 0xec, 1);
 
+
 //Meta sprite for Driving animation of Van vehicle
 DEF_METASPRITE_VAN(vanMove1, 0xc4, 2);
 DEF_METASPRITE_VAN(vanMove2, 0xe4, 2);
@@ -217,6 +218,7 @@ void show_title_screen(int x);
 void level_screen(const byte* pal, const byte* rle);
 void menu_controls(void);
 void river(void);
+void city(void);
 void scroll_background(void);
 void show_screen_scrolling(const byte* pal, const byte* rle,const byte* rle2);
 
@@ -253,6 +255,7 @@ void level_screen(const byte* pal, const byte* rle) {
   pal_bg(pal);
   vram_adr(0x2000);
   vram_unrle(rle);
+  
   
   for(j = 0;j<4;j++){
     if(cleared[j] == true){
@@ -641,6 +644,20 @@ void scroll_background() {
 }
 
 void river(){
+  delay(60
+
+);
+  sfx_init(demo_sounds);
+  famitone_init(boatSong_music_data);
+  nmi_set_callback(famitone_update);
+  music_play(0);
+
+  show_screen_scrolling(river_pal, river_rle,river_rle);
+  scroll_background();
+  
+}
+
+void city(){
   delay(60
 
 );
