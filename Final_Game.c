@@ -140,9 +140,10 @@ const unsigned char name[]={\
 /********************************** MOTORCYCLE METASPRITE ANIMATION SEQUENCES **********************************************************************/
 
 
-//Meta Sprites for Driving animation of the Motorcycle
+//Meta Sprite for driving animation
 DEF_METASPRITE_2x2(playerRRun1, 0xcc, 1);
 DEF_METASPRITE_2x2(playerRRun2, 0xec, 1);
+
 
 //Meta sprite for Driving animation of Van vehicle
 DEF_METASPRITE_VAN(vanMove1, 0xc4, 2);
@@ -185,8 +186,8 @@ DEF_METASPRITE_BOAT(boatRRun1, 0xcc, 1);
 DEF_METASPRITE_BOAT(boatRRun2, 0xec, 1);
 
 //Meta sprite for Driving animation of submarine
-DEF_METASPRITE_SUBMARINE(subMove1, 0xc4, 2);
-DEF_METASPRITE_SUBMARINE(subMove2, 0xe4, 2);
+DEF_METASPRITE_SUBMARINE(subMove1, 0x6b, 2);		
+DEF_METASPRITE_SUBMARINE(subMove2, 0x73, 2);		
 
 //Meta Sprite for Trash Bag
 DEF_METASPRITE_BAG(trashMove1, 0xd4 , 1);
