@@ -1010,7 +1010,12 @@ void scroll_background_city() {
       
     }
     if(progress %300 ==0) p+=5;
-    if(p == 60)show_victory(city_back1_pal, city_victory_rle);
+    if(p == 10){
+      cleared[0] = true;
+      scroll(0,0);
+      music_stop();
+    level_screen(level_select_pal,level_select_rle);
+    } 
     oam_id = oam_spr(100+ p, 10, 26, 2, oam_id);// change this sprite to an icon
     oam_id = oam_spr(160, 10, 25, 1, oam_id);
     
@@ -1040,8 +1045,11 @@ void scroll_background_city() {
     
     //End game when lives run out PLACE HOLDER
     if (fuel == 0)
-      show_game_over(city_back1_pal, city_game_over_rle);
-    }
+{
+      scroll(0,0);
+      music_stop();
+  	level_screen(level_select_pal,level_select_rle);
+    }    }
 }
 
 
@@ -1066,7 +1074,7 @@ void city(){
   nmi_set_callback(famitone_update);
   music_play(0);
 
-  show_screen_scrolling(river_pal, river_rle,river_rle);
+  show_screen_scrolling(river_pal, city_back1_rle,city_back1_rle);
   scroll_background_city();
   
 }
