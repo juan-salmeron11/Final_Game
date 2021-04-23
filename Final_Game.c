@@ -1066,7 +1066,7 @@ void city(){
   nmi_set_callback(famitone_update);
   music_play(0);
 
-  show_screen_scrolling(river_pal, river_rle,river_rle);
+  show_screen_scrolling(river_pal, city_back1_rle,city_back1_rle);
   scroll_background_city();
   
 }
@@ -1122,7 +1122,7 @@ void show_game_over(const byte* pal, const byte* rle){
      if(actor_x[0] == 45){
        sfx_play(0,0);
        music_play(0);
-       show_screen(city_back1_pal, city_back1_rle,city_back2_rle);
+       show_screen(city_back1_pal, city_back1_rle,city_back1_rle);
        scroll_background();     
    }
    
