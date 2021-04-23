@@ -14,6 +14,17 @@
 //#link "Level_Select.s"
 //#link "River_back.s"
 
+//#link "city_back1.s"
+//#link "city_game_over.s"
+//#link "city_victory.s"
+//#link "city_back2.s"
+
+extern const byte city_back1_pal[16];
+extern const byte city_back1_rle[];
+extern const byte city_game_over_rle[];
+extern const byte city_victory_rle[];
+extern const byte city_back2_rle[];
+
 // BCD arithmetic support
 #include "bcd.h"
 //#link "bcd.c"
@@ -28,10 +39,12 @@
 //#link "sfx.s"
 //#link "demosounds.s"
 //#link "boatSong.s"
+//#link "music_dangerstreets.s"
 extern char boatSong_music_data[];
 extern char demo_sounds[];
 extern char sfx_sounds[];
 extern char menu_theme_music_data[];
+extern char danger_streets_music_data[];
 /**********************************************************/
 
 
@@ -141,19 +154,19 @@ const unsigned char name[]={\
 
 
 //Meta Sprite for driving animation
-DEF_METASPRITE_2x2(playerRRun1, 0xcc, 1);
-DEF_METASPRITE_2x2(playerRRun2, 0xec, 1);
+DEF_METASPRITE_2x2(playerRRun1, 0x6b, 1);
+DEF_METASPRITE_2x2(playerRRun2, 0x73, 1);
 
 
 //Meta sprite for Driving animation of Van vehicle
-DEF_METASPRITE_VAN(vanMove1, 0xc4, 2);
-DEF_METASPRITE_VAN(vanMove2, 0xe4, 2);
+DEF_METASPRITE_VAN(vanMove1, 0x5b, 1);
+DEF_METASPRITE_VAN(vanMove2, 0x63, 1);
 
 //Meta Sprite for Gas Can
-DEF_METASPRITE_GAS(gasCan, 0xd4 , 1);
+DEF_METASPRITE_GAS(gasCan, 0x7f , 1);
 
 //Meta Sprite for Cone
-DEF_METASPRITE_CONE(cone, 0xdc , 1);
+DEF_METASPRITE_CONE(cone, 0x7b , 1);
 
 //Motorcycle Movement Sequence
 const unsigned char* const playerRunSeq[16] = {
@@ -186,8 +199,8 @@ DEF_METASPRITE_BOAT(boatRRun1, 0xcc, 1);
 DEF_METASPRITE_BOAT(boatRRun2, 0xec, 1);
 
 //Meta sprite for Driving animation of submarine
-DEF_METASPRITE_SUBMARINE(subMove1, 0x6b, 2);		
-DEF_METASPRITE_SUBMARINE(subMove2, 0x73, 2);		
+DEF_METASPRITE_SUBMARINE(subMove1, 0xc4, 2);		
+DEF_METASPRITE_SUBMARINE(subMove2, 0xe4, 2);		
 
 //Meta Sprite for Trash Bag
 DEF_METASPRITE_BAG(trashMove1, 0xd4 , 1);
@@ -272,10 +285,6 @@ sbyte cone_dy;
 
 
 
-
-
-
-
 /********************************* BOAT GAME DECLARATIONS ****************************/
 
 // Boat player declaration
@@ -315,9 +324,15 @@ int totalBags = 0;
 int hit = 0;
 bool invis = false;
 bool gas_can = false;
+bool trash_bag = false;
 int points=0;
 bool aa = false;
 
+
+//Motorcycle game global vars
+  int fuel = 1000;
+  int progress,p = 0;
+  int time = 1000;
 
 /*********************************************************/
 
@@ -355,8 +370,17 @@ void show_title_screen(int x);
 void level_screen(const byte* pal, const byte* rle);
 void menu_controls(void);
 void river(void);
+void city(void);
 void scroll_background(void);
+void scroll_background_city(void);
 void show_screen_scrolling(const byte* pal, const byte* rle,const byte* rle2);
+
+
+void show_game_over(const byte* pal, const byte* rle);
+void show_victory(const byte* pal, const byte* rle);
+void show_screen(const byte* pal, const byte* rle,const byte* rle2);
+
+
 
 
 void main(void)
@@ -370,9 +394,6 @@ void main(void)
   nmi_set_callback(famitone_update);  
   setup_graphics();
   level_screen(level_select_pal,level_select_rle);
-
-  
-
 }
 
 
@@ -497,8 +518,10 @@ void show_title_screen(int x) {
   vram_fill(0,1024);
   oam_clear();
   if(x==0){
-    vram_adr(NTADR_A(11,14));
-  vram_write("City Level", 10);
+    	//vram_adr(NTADR_A(11,14));
+  	//vram_write("City Level", 10);
+    	city();
+
   }
   else   if(x==1){
     vram_adr(NTADR_A(10,14));
@@ -538,6 +561,8 @@ void show_screen_scrolling(const byte* pal, const byte* rle,const byte* rle2) {
 }
 
 
+
+/********* BOAT GAME *******************************************************************************************/
 void scroll_background() {
   int x = 0;   // x scroll position
   int y = 0;   // y scroll position
@@ -549,19 +574,271 @@ void scroll_background() {
   char pad;	// controller flags
   
   //Place the player in the left fourth of the screen  
-  actor_x[0] = 40;
+  boat_x[0] = 40;
+  boat_y[0] = 191;
+  boat_dx[0] = 0;
+  boat_dy[0] = 0; 
+  
+    
+  //Placeholder for Trash bag
+  bag_x[0] = 0;	//Appear from rightmost part of screen
+  bag_y[0] = 180;
+  bag_dx[0] = 0;
+  bag_dy[0] = 0;
+  
+  //Submarine vehicle placement
+  for (i = 0; i < NUM_ENEMIES; i++)
+  {
+  sub_x[i] = (rand() % (254 + 1 - 150)) + 150;
+  sub_y[i] = (rand() % (210 + 1 - 150)) + 150;	//Vans spawn randomly within street range
+  sub_dx[i] = 0;
+  sub_dy[i] = 0;
+    
+  }
+  
+  //Crocodile placement and speed
+  croc_x = (rand() % (254 + 1 - 200)) + 200;
+  croc_y = (rand() % (210 + 1 - 150)) + 150;
+  croc_dx = 0;
+  croc_dy = 0;
+  
+  // infinite loop
+  while (1) {
+  
+      oam_id = 0;
+    
+    // set player 0/1 velocity based on controller
+    for (i=0; i<1; i++) {
+      // poll controller i (0-1)
+      pad = pad_poll(i);
+      
+      if (pad&PAD_LEFT && boat_x[i]>10) {
+        x-=1;			//Slows down the Background Scrolling
+        boat_dx[i] = -1;
+      }
+      else if (pad&PAD_RIGHT && boat_x[i]<220) {
+        x+=2;           	//Speeds up background scrolling
+        boat_dx[i] = 1;	//Speed up bike until hits the screen
+      }
+      
+      else{
+              boat_dx[i]=0;
+              dx =0;
+            }
+      if (pad&PAD_UP && boat_y[i] > 150)
+        boat_y[i] -=1 ;	//Moves player to the up until hits sidewalk
+      else if (pad&PAD_DOWN&& boat_y[i] <210) 
+        boat_y[i] +=1 ;	//Moves player to the down until hits screen border
+        
+                
+    }  
+    
+    //Drawing Player character Boat remains fixed to one side of screen
+     if(invis == false){
+       for (i=0; i<NUM_ACTORS; i++) {
+	byte runseq = x & 7;
+      if (boat_dx[i] >= 0)
+        runseq += 8;
+      oam_id = oam_meta_spr(boat_x[i], boat_y[i], oam_id, boatRunSeq[runseq]);	
+         //actor_x[0] += actor_dx[0];
+    }
+      }
+    
+    
+    //Drawing Trash bag
+    if(trash_bag == true){						
+    for (i=0; i<NUM_ACTORS; i++) {
+      
+      int framecounter = 0;
+      
+      if (framecounter%60 == 0)
+      oam_id = oam_meta_spr(bag_x[i], bag_y[i], oam_id, TrashSeq[0]);    
+      else
+	oam_id = oam_meta_spr(bag_x[i], bag_y[i], oam_id, TrashSeq[1]); 
+      
+      
+      if (boat_dx[i] == 0)		//BAG can moves same speed as background
+      bag_x[i] += bag_dx[i] - 2;
+
+      else if (boat_dx[i] > 0)
+      bag_x[i] += bag_dx[i] - 4;
+      else
+      bag_x[i] += bag_dx[i] - 1;
+      
+      framecounter++;
+      
+    }
+    }
+    
+    
+    //Drawing Crocodile
+    for (i=0; i<NUM_ACTORS; i++) 
+    {	    
+      
+      if (boat_dx[i] == 0)
+      {
+        oam_id = oam_meta_spr(croc_x, croc_y, oam_id, CrocSeq[1] );
+        croc_x += croc_dx - 2;
+      }
+      else if (boat_dx[i] > 0)
+      {
+        oam_id = oam_meta_spr(croc_x, croc_y, oam_id, CrocSeq[2] );	//Crocodile opens mouth when player speeds up
+        croc_x += croc_dx - 4;
+      }
+      else
+      	{
+        oam_id = oam_meta_spr(croc_x, croc_y, oam_id, CrocSeq[1] );
+      	croc_x += croc_dx -1;     
+    	}
+    }
+    
+/*******************Drawing submarines*************************************************************************/
+    for (i=0; i<NUM_ENEMIES; i++) {
+      byte runseq = x & 7;      
+      if (x != 0)
+        runseq += 8;
+      oam_id = oam_meta_spr(sub_x[i], sub_y[i], oam_id, submarineRunSeq[runseq] );
+      
+      if (boat_dx[0] == 0)		
+      sub_x[i] += sub_dx[i] - 1;
+      else if (boat_dx[0] > 0)		
+      sub_x[i] += sub_dx[i] - 3;  
+      else
+      sub_x[i] += sub_dx[i] + 1;	      	
+      if(sub_x[i] >= 254 && trash_bag == false)				
+        points++;
+    }
+    
+    
+/*******************Submarine Collision detection******************************************************************************/ 
+    if(aa == false){
+    for (i=0; i<NUM_ENEMIES; i++){
+    if(sub_x[i] > (boat_x[0]) && sub_x[i] < (boat_x[0] + 32) && sub_y[i] < (boat_y[0] + 16) && sub_y[i] > (boat_y[0])) {
+      	sfx_play(1,1);	
+      	delay(20);
+        lives--;
+        sub_x[i] = 230;
+      	sub_y[i] = (rand() % (208 + 1 - 150)) + 150;
+        hit = 75;
+        aa = true;
+      }
+    }}
+    
+    
+/******************** TRASH BAG COLLISION DETECTION AND INCREASE IN POINTS ******************************************************/
+    if(trash_bag == true){
+    if(bag_x[0] > (boat_x[0]) && bag_x[0] < (boat_x[0] + 32) && bag_y[0] < (boat_y[0] + 16) && bag_y[0] > (boat_y[0])) {
+      	trash_bag = false;
+      	//gasCan_x[0]=0;
+      	sfx_play(0,2);  
+      	totalBags = totalBags + 1;
+      	points =0;
+      }
+    }
+    
+    
+    
+/******************** Crocodile COLLISION DETECTION AND INCREASE IN POINTS ******************************************************/
+    if( (croc_x > (boat_x[0])) && (croc_x < (boat_x[0] + 26)) && (croc_y > boat_y[0]) && (croc_y < boat_y[0] + 6)){
+      	sfx_play(1,1);
+      	delay(20);
+      	hit = 75;
+        croc_x = 240;
+      	croc_y = (rand() % (208 + 1 - 150)) + 150;
+    	lives -= 1;
+      }
+    else if (croc_x >= 254)
+    {
+      croc_x = 240;
+      croc_y = (rand() % (210 + 1 - 150)) + 150;
+    }
+    
+    
+    //Submarine and Crocodile Spawning pattern
+    for (i=0; i<NUM_ENEMIES; i++){
+    if((sub_x[i]) >= 254)
+	sub_y[i]= (rand() % (208 + 1 - 150)) + 150;
+    }
+    
+    // wait for next frame
+    ppu_wait_nmi();
+
+    
+/************* cOLLECT 5 TRASH BAGS TO WIN ***************************************************/
+    if(totalBags == 1){
+      cleared[2] = true;
+      scroll(0,0);
+      music_stop();
+    level_screen(level_select_pal,level_select_rle);
+    } 
+    
+    x +=2;
+    scroll(x, y);
+    
+    //Spawn the trash bag after 10 poitns are accumulated
+    if(points == 10) trash_bag = true;
+    
+    if (oam_id!=0) oam_hide_rest(oam_id);
+    
+    //INVISIBILITY FRAMES	
+    if(hit > 0){ 
+      hit--;
+      if(invis == false)
+        invis = true;
+        else invis = false;
+    }
+    
+    if(hit == 0){
+      invis = false;
+      aa = false;
+    }
+      
+    if (oam_id!=0) oam_hide_rest(oam_id);
+    
+    //End game when lives run out PLACE HOLDER
+    if (lives <= 0){
+      scroll(0,0);
+      music_stop();
+  	level_screen(level_select_pal,level_select_rle);
+    }
+    }
+}
+
+
+
+
+
+
+
+
+/********* BIKE GAME *******************************************************************************************/
+void scroll_background_city() {
+  int x = 0;   // x scroll position
+  int y = 0;   // y scroll position
+  int dx = 0;  // y scroll direction
+  int lives = 3;
+  
+
+
+
+  char i;	// actor index
+  char oam_id;	// sprite ID
+  char pad;	// controller flags
+  
+  //Place the player in the left fourth of the screen  
+  actor_x[0] = 60;
   actor_y[0] = 191;
   actor_dx[0] = 0;
   actor_dy[0] = 0; 
   
     
-  //Placeholder for Trash bag
+  //Placeholder for GasCan
   gasCan_x[0] = 0;	//Appear from rightmost part of screen
   gasCan_y[0] = 180;
   gasCan_dx[0] = 0;
   gasCan_dy[0] = 0;
   
-  //Submarine vehicle placement
+  //Van vehicle placement
   for (i = 0; i < NUM_ENEMIES; i++)
   {
   van_x[i] = (rand() % (254 + 1 - 150)) + 150;
@@ -571,7 +848,7 @@ void scroll_background() {
     
   }
   
-  //Crocodile placement and speed
+  //Cone placement and speed
   cone_x = (rand() % (254 + 1 - 200)) + 200;
   cone_y = (rand() % (210 + 1 - 150)) + 150;
   cone_dx = 0;
@@ -607,30 +884,24 @@ void scroll_background() {
         
                 
     }  
-    
-    //Drawing Player character Boat remains fixed to one side of screen
+    //Drawing Player character
      if(invis == false){
        for (i=0; i<NUM_ACTORS; i++) {
 	byte runseq = x & 7;
       if (actor_dx[i] >= 0)
         runseq += 8;
       oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, playerRunSeq[runseq]);
-         //actor_x[0] += actor_dx[0];
+         actor_x[0] += actor_dx[0];
     }
       }
     
     
-    //Drawing Trash bag
+    //Drawing Gas can IDEA: spawn gas can in a random y coordinate within the street range
     if(gas_can == true){
     for (i=0; i<NUM_ACTORS; i++) {
       
-      int framecounter = 0;
-      
-      if (framecounter%60 == 0)
-      oam_id = oam_meta_spr(gasCan_x[i], gasCan_y[i], oam_id, TrashSeq[0]);    
-      else
-	oam_id = oam_meta_spr(gasCan_x[i], gasCan_y[i], oam_id, TrashSeq[1]); 
-      
+
+      oam_id = oam_meta_spr(gasCan_x[i], gasCan_y[i], oam_id, gasCan);    
       
       if (actor_dx[i] == 0)		//Gas can moves same speed as background
       gasCan_x[i] += gasCan_dx[i] - 2;
@@ -640,34 +911,26 @@ void scroll_background() {
       else
       gasCan_x[i] += gasCan_dx[i] - 1;
       
-      framecounter++;
-      
     }
     }
     
     
-    //Drawing Crocodile
+    //Drawing Cones
     for (i=0; i<NUM_ACTORS; i++) 
-    {	    
+    {
+      oam_id = oam_meta_spr(cone_x, cone_y, oam_id, cone );      
       
-      if (actor_dx[i] == 0)
-      {
-        oam_id = oam_meta_spr(cone_x, cone_y, oam_id, CrocSeq[1] );
+      if (actor_dx[i] == 0)		
         cone_x += cone_dx - 2;
-      }
+
       else if (actor_dx[i] > 0)
-      {
-        oam_id = oam_meta_spr(cone_x, cone_y, oam_id, CrocSeq[2] );	//Crocodile opens mouth when player speeds up
         cone_x += cone_dx - 4;
-      }
+
       else
-      	{
-        oam_id = oam_meta_spr(cone_x, cone_y, oam_id, CrocSeq[1] );
-      	cone_x += cone_dx -1;     
-    	}
+      cone_x += cone_dx -1;     
     }
     
-/*******************Drawing submarines*************************************************************************/
+    //Drawing Van enemy
     for (i=0; i<NUM_ENEMIES; i++) {
       byte runseq = x & 7;      
       if (x != 0)
@@ -685,7 +948,7 @@ void scroll_background() {
     }
     
     
-/*******************Submarine Collision detection******************************************************************************/ 
+    //VAN Collision detection 
     if(aa == false){
     for (i=0; i<NUM_ENEMIES; i++){
     if(van_x[i] > (actor_x[0]) && van_x[i] < (actor_x[0] + 32) && van_y[i] < (actor_y[0] + 16) && van_y[i] > (actor_y[0])) {
@@ -695,32 +958,31 @@ void scroll_background() {
         van_x[i] = 230;
       	van_y[i] = (rand() % (208 + 1 - 150)) + 150;
         hit = 75;
-        aa = true;
+      aa = true;
+      fuel -= 50;
       }
     }}
     
-    
-/******************** TRASH BAG COLLISION DETECTION AND INCREASE IN POINTS ******************************************************/
+    //Gas Can Collision detection and place holder for where can goes after collision
     if(gas_can == true){
     if(gasCan_x[0] > (actor_x[0]) && gasCan_x[0] < (actor_x[0] + 32) && gasCan_y[0] < (actor_y[0] + 16) && gasCan_y[0] > (actor_y[0])) {
       	gas_can = false;
-      	//gasCan_x[0]=0;
-      	sfx_play(0,2);  
-      	totalBags = totalBags + 1;
-      	points =0;
+      //	gasCan_x[0] = -10;	//Change these later
+      //	gasCan_y[0] = -10;	//Change these later
+      	fuel = 1000;
+      	points = 0;
+      	sfx_play(0,2);
       }
     }
-    
-    
-    
-/******************** Crocodile COLLISION DETECTION AND INCREASE IN POINTS ******************************************************/
+    //Cone Collision detection 
     if( (cone_x > (actor_x[0])) && (cone_x < (actor_x[0] + 26)) && (cone_y > actor_y[0]) && (cone_y < actor_y[0] + 6)){
       	sfx_play(1,1);
       	delay(20);
+        lives--;
       	hit = 75;
         cone_x = 240;
       	cone_y = (rand() % (208 + 1 - 150)) + 150;
-    	lives -= 1;
+    	fuel -= 50;
       }
     else if (cone_x >= 254)
     {
@@ -737,25 +999,31 @@ void scroll_background() {
     
     // wait for next frame
     ppu_wait_nmi();
-
+    // update y variable
+    //x += dx;
     
-/************* cOLLECT 5 TRASH BAGS TO WIN ***************************************************/
-    if(totalBags == 1){
-      cleared[2] = true;
-      scroll(0,0);
-      music_stop();
-    level_screen(level_select_pal,level_select_rle);
-    } 
+    for(i=0;i<fuel/100;i++){
+      int s = 2;
+        if (fuel < 600 & fuel > 300) s = 1;
+      else if (fuel <= 300) s = 3;
+    oam_id = oam_spr(10+(i*8), 10, s, 0, oam_id);
+      
+    }
+    if(progress %300 ==0) p+=5;
+    if(p == 60)show_victory(city_back1_pal, city_victory_rle);
+    oam_id = oam_spr(100+ p, 10, 26, 2, oam_id);// change this sprite to an icon
+    oam_id = oam_spr(160, 10, 25, 1, oam_id);
     
     x +=2;
     scroll(x, y);
+    fuel -=1;
+    time -=1;
+    progress +=1;
     
-    //Spawn the trash bag after 10 poitns are accumulated
     if(points == 10) gas_can = true;
     
     if (oam_id!=0) oam_hide_rest(oam_id);
     
-    //INVISIBILITY FRAMES	
     if(hit > 0){ 
       hit--;
       if(invis == false)
@@ -771,13 +1039,11 @@ void scroll_background() {
     if (oam_id!=0) oam_hide_rest(oam_id);
     
     //End game when lives run out PLACE HOLDER
-    if (lives <= 0){
-      scroll(0,0);
-      music_stop();
-  	level_screen(level_select_pal,level_select_rle);
-    }
+    if (fuel == 0)
+      show_game_over(city_back1_pal, city_game_over_rle);
     }
 }
+
 
 /**********************************RIVER STAGE*******************************************************************/
 void river(){
@@ -790,4 +1056,127 @@ void river(){
   show_screen_scrolling(river_pal, river_rle,river_rle);
   scroll_background();
   
+}
+
+/**************************** CITY STAGE ***********************************************************************/
+void city(){
+  delay(60);
+  sfx_init(demo_sounds);
+  famitone_init(danger_streets_music_data);
+  nmi_set_callback(famitone_update);
+  music_play(0);
+
+  show_screen_scrolling(river_pal, river_rle,river_rle);
+  scroll_background_city();
+  
+}
+
+
+void show_game_over(const byte* pal, const byte* rle){
+  int x = 0;   // x scroll position
+  char i;	// actor index
+  char oam_id;	// sprite ID
+  char pad;	// controller flags
+  
+  music_stop();
+  
+  fuel = 1000;
+  progress,p = 0;
+  time = 1000;
+  hit = 0;
+  invis = false;
+  gas_can = false;
+  points=0;
+  aa = false;
+  
+  
+  
+  //Place the player in the left fourth of the screen  
+  actor_x[0] = 125;
+  actor_y[0] = 160;
+  actor_dx[0] = 2;
+  actor_dy[0] = 0; 
+  
+  setup_graphics();
+  ppu_off();
+  // set palette, virtual bright to 0 (total black)
+  pal_bg(pal);
+  scroll(0, 0);
+  // unpack nametable into the VRAM
+  vram_adr(0x2000);
+  vram_unrle(rle);
+  // enable rendering
+  ppu_on_all();
+
+  while(1){          
+   pad = pad_trigger(0);
+   if(pad & PAD_RIGHT){
+     	sfx_play(2,1);
+   	actor_x[0]=125;
+   }
+   if(pad & PAD_LEFT){
+   	actor_x[0]=45;
+     	sfx_play(2,1);
+   }
+   if(pad & PAD_START){
+     if(actor_x[0] == 45){
+       sfx_play(0,0);
+       music_play(0);
+       show_screen(city_back1_pal, city_back1_rle,city_back2_rle);
+       scroll_background();     
+   }
+   
+     else
+     {
+       	main();    
+     	sfx_play(0,0);
+     }
+     
+   }
+    
+    oam_id =0;
+      for (i=0; i<NUM_ACTORS; i++) {
+        byte runseq = x & 7;
+      if (actor_dx[i] >= 0)
+        runseq += 8;
+        oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, playerRunSeq[runseq]);
+     
+    }
+          
+  }
+
+  
+}
+
+
+void show_victory(const byte* pal, const byte* rle){
+  setup_graphics();
+  ppu_off();
+  // set palette, virtual bright to 0 (total black)
+  pal_bg(pal);
+  scroll(0, 0);
+  // unpack nametable into the VRAM
+  vram_adr(0x2000);
+  vram_unrle(rle);
+  // enable rendering
+  ppu_on_all();
+
+  while(1){}
+}
+
+
+
+void show_screen(const byte* pal, const byte* rle,const byte* rle2) {
+  // disable rendering
+  ppu_off();
+  // set palette, virtual bright to 0 (total black)
+  pal_bg(pal);
+  
+  // unpack nametable into the VRAM
+  vram_adr(0x2000);
+  vram_unrle(rle);
+  vram_adr(0x2400);
+  vram_unrle(rle2);
+  // enable rendering
+  ppu_on_all();
 }
