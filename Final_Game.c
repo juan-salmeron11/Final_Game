@@ -1446,8 +1446,8 @@ void forest(){
 
     
     	//Win Conditions
-      if (score >= 50){
-
+      if (score >= 10){
+        cleared[1] = true;
   	level_screen(level_select_pal,level_select_rle);
       }
     
@@ -1505,19 +1505,19 @@ void fruit_collision(int f){
     //set sprite before reappearing
     switch(f){
       case 0:
-        Fruits[f].sprite=19;
+        Fruits[f].sprite=41;
         Fruits[f].falling=false;
         break;
       case 1:
-        Fruits[f].sprite=20;
+        Fruits[f].sprite=42;
         Fruits[f].falling=false;
         break;
       case 2:
-        Fruits[f].sprite=21;
+        Fruits[f].sprite=43;
         Fruits[f].falling=false;
         break;
       case 3:
-        Fruits[f].sprite= 22;
+        Fruits[f].sprite= 44;
         Fruits[f].falling=false;
         break;
       default:
