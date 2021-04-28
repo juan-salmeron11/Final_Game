@@ -1565,6 +1565,20 @@ void fruit_collision(int f){
 }
 
 
+
+
+
+
+
+
+
+/************************************MOUNTAIN GAME***********************************************************************/
+
+
+
+
+
+
 void mountain(){
   delay(60);
    show_screen_scrolling(fruit_background_pal, fruit_background_rle,fruit_background_rle);
@@ -1649,7 +1663,7 @@ void mountain(){
       byte runseq = actor_x[i] & 7;
       if (actor_dx[0] >= 0)
         runseq += 8;
-      oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, layerRunSeq[runseq]);
+      oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, climbSeq[runseq]);
       actor_x[i] += actor_dx[i];
       //Protoype for jumping
       if(actor_y[i] <= 191)
