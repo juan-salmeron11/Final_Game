@@ -648,7 +648,7 @@ void level_screen(const byte* pal, const byte* rle) {
 
 void menu_controls(){
   
-  pad = pad_trigger(i);
+  pad = pad_trigger(0);
   
   if (pad & PAD_DOWN && arrow_y == 70) {    
       	sfx_play(2,0);
@@ -1263,7 +1263,7 @@ void forest(){
    show_screen_scrolling(fruit_background_pal, fruit_background_rle,fruit_background_rle);
 
   score =0;
-  lives = 3;
+  lives = 1;
   
   
   // Initialize actor fruits
@@ -1272,13 +1272,11 @@ void forest(){
     Fruits[i]._x = rndint(20,230);	//X position
     Fruits[i]._y = rndint(15,70);	//Y position
     Fruits[i]._dy = 0;			//Falling Speed
-    Fruits[i].sprite = i+19;		//Sprite used
+    Fruits[i].sprite = i+0x29;		//Sprite used
     Fruits[i].points = i+1;		//Points added when collected
   }
   
   
-  //add_grass_tiles();
-  setup_graphics();
 //  famitone_init(effects);
 //  sfx_init(effects);
 //  nmi_set_callback(famitone_update);
@@ -1449,16 +1447,14 @@ void forest(){
     
     	//Win Conditions
       if (score >= 50){
-      sfx_play(0,0);
-//victory();
-      break;
+
+  	level_screen(level_select_pal,level_select_rle);
       }
     
       //Lose Conditions
       if (lives == 0){
-      sfx_play(0,0);
-      //gameOver();
-      break;
+
+  	level_screen(level_select_pal,level_select_rle);
     }
   }
   while(1){}
