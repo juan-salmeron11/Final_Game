@@ -15,15 +15,14 @@
 //#link "River_back.s"
 
 //#link "city_back1.s"
-//#link "city_game_over.s"
-//#link "city_victory.s"
 //#link "city_back2.s"
+//#link "fruit_background.s"
 
 extern const byte city_back1_pal[16];
 extern const byte city_back1_rle[];
-extern const byte city_game_over_rle[];
-extern const byte city_victory_rle[];
 extern const byte city_back2_rle[];
+extern const byte fruit_background_pal[16];
+extern const byte fruit_background_rle[];
 
 // BCD arithmetic support
 #include "bcd.h"
@@ -146,7 +145,8 @@ const unsigned char name[]={\
         128};
 
 
-/**********************************METASPRITE ANIMATION SEQUENCES **********************************************************************/
+/********************************* META SPRITES FOR FRUIT GAME***************************************************/
+
 
 
 
@@ -371,14 +371,15 @@ void level_screen(const byte* pal, const byte* rle);
 void menu_controls(void);
 void river(void);
 void city(void);
+void forest(void);
 void scroll_background(void);
 void scroll_background_city(void);
 void show_screen_scrolling(const byte* pal, const byte* rle,const byte* rle2);
 
-
-void show_game_over(const byte* pal, const byte* rle);
-void show_victory(const byte* pal, const byte* rle);
 void show_screen(const byte* pal, const byte* rle,const byte* rle2);
+byte rndint(byte, byte);
+void fruit_collision(int,);
+
 
 
 
@@ -525,8 +526,7 @@ void show_title_screen(int x) {
 
   }
   else   if(x==1){
-    vram_adr(NTADR_A(10,14));
-  vram_write("Forest Level", 12);
+ 	forest();
   }
   else   if(x==2){
    river();
@@ -1081,99 +1081,14 @@ void city(){
 }
 
 
-void show_game_over(const byte* pal, const byte* rle){
-  int x = 0;   // x scroll position
-  char i;	// actor index
-  char oam_id;	// sprite ID
-  char pad;	// controller flags
-  
-  music_stop();
-  
-  fuel = 1000;
-  progress,p = 0;
-  time = 1000;
-  hit = 0;
-  invis = false;
-  gas_can = false;
-  points=0;
-  aa = false;
-  
-  
-  
-  //Place the player in the left fourth of the screen  
-  actor_x[0] = 125;
-  actor_y[0] = 160;
-  actor_dx[0] = 2;
-  actor_dy[0] = 0; 
-  
-  setup_graphics();
-  ppu_off();
-  // set palette, virtual bright to 0 (total black)
-  pal_bg(pal);
-  scroll(0, 0);
-  // unpack nametable into the VRAM
-  vram_adr(0x2000);
-  vram_unrle(rle);
-  // enable rendering
-  ppu_on_all();
+void forest(){
+  delay(60);
+    show_screen_scrolling(fruit_background_pal, fruit_background_rle,fruit_background_rle);
 
-  while(1){          
-   pad = pad_trigger(0);
-   if(pad & PAD_RIGHT){
-     	sfx_play(2,1);
-   	actor_x[0]=125;
-   }
-   if(pad & PAD_LEFT){
-   	actor_x[0]=45;
-     	sfx_play(2,1);
-   }
-   if(pad & PAD_START){
-     if(actor_x[0] == 45){
-       sfx_play(0,0);
-       music_play(0);
-       show_screen(city_back1_pal, city_back1_rle,city_back2_rle);
-       scroll_background();     
-   }
-   
-     else
-     {
-       	main();    
-     	sfx_play(0,0);
-     }
-     
-   }
-    
-    oam_id =0;
-      for (i=0; i<NUM_ACTORS; i++) {
-        byte runseq = x & 7;
-      if (actor_dx[i] >= 0)
-        runseq += 8;
-        oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, playerRunSeq[runseq]);
-     
-    }
-          
-  }
 
-  
+
+
 }
-
-
-void show_victory(const byte* pal, const byte* rle){
-  setup_graphics();
-  ppu_off();
-  // set palette, virtual bright to 0 (total black)
-  pal_bg(pal);
-  scroll(0, 0);
-  // unpack nametable into the VRAM
-  vram_adr(0x2000);
-  vram_unrle(rle);
-  // enable rendering
-  ppu_on_all();
-
-  while(1){}
-}
-
-
 
 void show_screen(const byte* pal, const byte* rle,const byte* rle2) {
   // disable rendering
@@ -1189,3 +1104,13 @@ void show_screen(const byte* pal, const byte* rle,const byte* rle2) {
   // enable rendering
   ppu_on_all();
 }
+
+
+/********************************************/
+byte rndint(byte a, byte b){
+  return (rand() % (b-a)) + a;
+}
+/*******************************************/
+
+
+
