@@ -498,6 +498,7 @@ void menu_controls(){
     	sfx_init(sfx_sounds);
       	sfx_play(1,0);
     if (arrow_x == 25 && arrow_y ==70){
+      
       show_title_screen(0);
     
     }
