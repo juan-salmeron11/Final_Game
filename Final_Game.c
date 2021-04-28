@@ -209,25 +209,25 @@ const unsigned char name[]={\
 
 
 //Metasprite for bear
-DEF_METASPRITE_B_2x2(bearRStand, 0xc4, 0);
-DEF_METASPRITE_B_2x2(bearRRun1, 0xc4, 0);
-DEF_METASPRITE_B_2x2(bearRRun2, 0xc8, 0);
-DEF_METASPRITE_B_2x2(bearRRun3, 0xcc, 0);
+DEF_METASPRITE_B_2x2(bearRStand, 0x83, 1);
+DEF_METASPRITE_B_2x2(bearRRun1, 0x8b, 1);
+DEF_METASPRITE_B_2x2(bearRRun2, 0x87, 1);
+DEF_METASPRITE_B_2x2(bearRRun3, 0x83, 1);
 
 //Flipped bear Metasprites
-DEF_METASPRITE_B_2x2_FLIP(bearLStand, 0xd8, 0);
-DEF_METASPRITE_B_2x2_FLIP(bearLRun1, 0xdc, 0);
-DEF_METASPRITE_B_2x2_FLIP(bearLRun2, 0xe0, 0);
-DEF_METASPRITE_B_2x2_FLIP(bearLRun3, 0xe4, 0);
+DEF_METASPRITE_B_2x2_FLIP(bearLStand, 0x83, 0);
+DEF_METASPRITE_B_2x2_FLIP(bearLRun1, 0x8b, 0);
+DEF_METASPRITE_B_2x2_FLIP(bearLRun2, 0x87, 0);
+DEF_METASPRITE_B_2x2_FLIP(bearLRun3, 0x83, 0);
 
 
 
 /****Metasprite for bird******************************COPY HERE (B) ************/
 
-DEF_METASPRITE_C_2x2(birdStand, 0xf0, 0);
-DEF_METASPRITE_C_2x2(birdFly1, 0xf0, 0);
-DEF_METASPRITE_C_2x2(birdFly2, 0xf4, 0);
-DEF_METASPRITE_C_2x2(birdFly3, 0xf8, 0);
+DEF_METASPRITE_C_2x2(birdStand, 0xa7, 1);
+DEF_METASPRITE_C_2x2(birdFly1, 0xa7, 1);
+DEF_METASPRITE_C_2x2(birdFly2, 0xab, 1);
+DEF_METASPRITE_C_2x2(birdFly3, 0xab, 1);
 
 /*****************************************************COPY HERE (B) ************/
 
@@ -235,15 +235,15 @@ DEF_METASPRITE_C_2x2(birdFly3, 0xf8, 0);
 
 
 //Meta sprite for player 
-DEF_METASPRITE_CHAR(layerRStand, 0xd8, 0);
-DEF_METASPRITE_CHAR(layerRRun1, 0xdc, 0);
-DEF_METASPRITE_CHAR(layerRRun2, 0xe0, 0);
-DEF_METASPRITE_CHAR(layerRRun3, 0xe4, 0);
+DEF_METASPRITE_CHAR(layerRStand, 0x8f, 0);
+DEF_METASPRITE_CHAR(layerRRun1, 0x93, 0);
+DEF_METASPRITE_CHAR(layerRRun2, 0x97, 0);
+DEF_METASPRITE_CHAR(layerRRun3, 0x9b, 0);
 
-DEF_METASPRITE_CHAR_FLIP(layerLStand, 0xd8, 0);
-DEF_METASPRITE_CHAR_FLIP(layerLRun1, 0xdc, 0);
-DEF_METASPRITE_CHAR_FLIP(layerLRun2, 0xe0, 0);
-DEF_METASPRITE_CHAR_FLIP(layerLRun3, 0xe4, 0);
+DEF_METASPRITE_CHAR_FLIP(layerLStand, 0x8f, 0);
+DEF_METASPRITE_CHAR_FLIP(layerLRun1, 0x93, 0);
+DEF_METASPRITE_CHAR_FLIP(layerLRun2, 0x97, 0);
+DEF_METASPRITE_CHAR_FLIP(layerLRun3, 0x9b, 0);
 
 //Bear movement sequence
 const unsigned char* const bearRunSeq[16] = {
