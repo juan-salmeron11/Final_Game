@@ -224,10 +224,10 @@ DEF_METASPRITE_B_2x2_FLIP(bearLRun3, 0x83, 0);
 
 /****Metasprite for bird******************************COPY HERE (B) ************/
 
-DEF_METASPRITE_C_2x2(birdStand, 0xa7, 1);
-DEF_METASPRITE_C_2x2(birdFly1, 0xa7, 1);
-DEF_METASPRITE_C_2x2(birdFly2, 0xab, 1);
-DEF_METASPRITE_C_2x2(birdFly3, 0xab, 1);
+DEF_METASPRITE_C_2x2(birdStand, 0xa7, 3);
+DEF_METASPRITE_C_2x2(birdFly1, 0xa7, 3);
+DEF_METASPRITE_C_2x2(birdFly2, 0xab, 3);
+DEF_METASPRITE_C_2x2(birdFly3, 0xaf, 3);
 
 /*****************************************************COPY HERE (B) ************/
 
@@ -235,15 +235,15 @@ DEF_METASPRITE_C_2x2(birdFly3, 0xab, 1);
 
 
 //Meta sprite for player 
-DEF_METASPRITE_CHAR(layerRStand, 0x8f, 0);
-DEF_METASPRITE_CHAR(layerRRun1, 0x93, 0);
-DEF_METASPRITE_CHAR(layerRRun2, 0x97, 0);
-DEF_METASPRITE_CHAR(layerRRun3, 0x9b, 0);
+DEF_METASPRITE_CHAR(layerRStand, 0x8f, 1);
+DEF_METASPRITE_CHAR(layerRRun1, 0x93, 1);
+DEF_METASPRITE_CHAR(layerRRun2, 0x97, 1);
+DEF_METASPRITE_CHAR(layerRRun3, 0x9b, 1);
 
-DEF_METASPRITE_CHAR_FLIP(layerLStand, 0x8f, 0);
-DEF_METASPRITE_CHAR_FLIP(layerLRun1, 0x93, 0);
-DEF_METASPRITE_CHAR_FLIP(layerLRun2, 0x97, 0);
-DEF_METASPRITE_CHAR_FLIP(layerLRun3, 0x9b, 0);
+DEF_METASPRITE_CHAR_FLIP(layerLStand, 0x8f, 1);
+DEF_METASPRITE_CHAR_FLIP(layerLRun1, 0x93, 1);
+DEF_METASPRITE_CHAR_FLIP(layerLRun2, 0x97, 1);
+DEF_METASPRITE_CHAR_FLIP(layerLRun3, 0x9b, 1);
 
 //Bear movement sequence
 const unsigned char* const bearRunSeq[16] = {
