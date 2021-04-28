@@ -17,12 +17,14 @@
 //#link "city_back1.s"
 //#link "city_back2.s"
 //#link "fruit_background.s"
+//#link "mountain.s"
 
 extern const byte city_back1_pal[16];
 extern const byte city_back1_rle[];
 extern const byte city_back2_rle[];
 extern const byte fruit_background_pal[16];
 extern const byte fruit_background_rle[];
+extern const byte mountain_rle[];
 
 // BCD arithmetic support
 #include "bcd.h"
@@ -204,7 +206,41 @@ const unsigned char name[]={\
 
 
 
+/******************** META SPRITES FOR MOUNTAIN GAME ************************************************************************/
+// Metasprite for climbing character
+#define DEF_METASPRITE_CLIMBER(name,code,pal)\
+const unsigned char name[]={\
+        0,      0,      (code)+0,   pal, \
+        0,      8,      (code)+1,   pal, \
+        8,      0,      (code)+2,   pal, \
+        8,      8,      (code)+3,   pal, \
+        128};
 
+// Metasprite for climbing character flipped
+#define DEF_METASPRITE_CLIMBER_FLIP(name,code,pal)\
+const unsigned char name[]={\
+        8,      0,      (code)+0,   (pal)|OAM_FLIP_H, \
+        8,      8,      (code)+1,   (pal)|OAM_FLIP_H, \
+        0,      0,      (code)+2,   (pal)|OAM_FLIP_H, \
+        0,      8,      (code)+3,   (pal)|OAM_FLIP_H, \
+        128};
+
+//Metasprite for climber
+DEF_METASPRITE_CLIMBER(playerClimb1, 0xa3 , 1);
+
+//Flipped metasprite for climber
+DEF_METASPRITE_CLIMBER_FLIP(playerClimb2, 0xa3 , 1);
+
+//Animation sequence for climber
+
+const unsigned char* const climbSeq[16] = {
+  playerClimb1, playerClimb2, playerClimb1, 
+  playerClimb1, playerClimb2, playerClimb1, 
+  playerClimb1, playerClimb2,
+  playerClimb1, playerClimb2, playerClimb1, 
+  playerClimb1, playerClimb2, playerClimb1, 
+  playerClimb1, playerClimb2,
+};
 
 
 
@@ -549,6 +585,7 @@ void menu_controls(void);
 void river(void);
 void city(void);
 void forest(void);
+void mountain(void);
 void scroll_background(void);
 void scroll_background_city(void);
 void show_screen_scrolling(const byte* pal, const byte* rle,const byte* rle2);
@@ -709,8 +746,7 @@ void show_title_screen(int x) {
    river();
   }
   else{
-    vram_adr(NTADR_A(9,14));
-  vram_write("Mountain Level", 14);
+	mountain();
   }
   ppu_on_all();
   while(1){
@@ -1526,4 +1562,207 @@ void fruit_collision(int f){
   }
   
 
+}
+
+
+void mountain(){
+  delay(60);
+   show_screen_scrolling(fruit_background_pal, fruit_background_rle,fruit_background_rle);
+
+  score =0;
+  lives = 1;
+  
+  
+  // Initialize actor fruits
+  for(i=0;i<4;i++){		
+    Fruits[i].falling = false;		//Controls when fruit falls
+    Fruits[i]._x = rndint(20,230);	//X position
+    Fruits[i]._y = rndint(15,70);	//Y position
+    Fruits[i]._dy = 0;			//Falling Speed
+    Fruits[i].sprite = i+0x29;		//Sprite used
+    Fruits[i].points = i+1;		//Points added when collected
+  }
+  
+  
+//  famitone_init(effects);
+//  sfx_init(effects);
+//  nmi_set_callback(famitone_update);
+  
+  //Place the player in the middle of the screen
+    actor_x[0] = 120;
+    actor_y[0] = 191;
+    actor_dx[0] = 0;
+    actor_dy[0] = 0;
+  
+  
+  //Bear enemy on the corner of the screen
+    enemy_x = 0;
+    enemy_y = 100;
+    enemy_dx = 2;
+    enemy_dy = 0;
+
+/***************************************************** COPY HERE (E) *****************/
+  //Bird enemy on Right corner of the screen 
+    enemyBird_x = 250;
+    enemyBird_y = 161;
+    enemyBird_dx = -3;	//Delta values are placeholder, they need Sin(x) movement
+    enemyBird_dy = 1;
+  
+/***************************************************** COPY HERE (E) *****************/
+
+  
+  // Initiate Game loop
+  
+  famitone_init(danger_streets_music_data);
+  // set music callback function for NMI
+  nmi_set_callback(famitone_update);
+  // play music
+  music_play(0);
+  
+  while (1) {
+    // start with OAMid/sprite 0
+    oam_id = 0;
+    
+    // set player 0/1 velocity based on controller
+    for (i=0; i<1; i++) {
+      // poll controller i (0-1)
+      pad2 = pad_trigger(i);
+      pad = pad_poll(i);
+      
+      if (pad&PAD_LEFT && actor_x[i]>0) actor_dx[i]=-2;		//Moves player to the left until hits screen border
+      else if (pad&PAD_RIGHT && actor_x[i]<240) actor_dx[i]=2;	//Moves player to the right until hits screen border
+      else actor_dx[i]=0;					//Else horizontal acceleration = 0
+      
+      if (pad2 & PAD_A &&  actor_y[i] == 191)			//Prototype jumping
+      { 
+        actor_dy[i]=-2;
+      }
+            
+      
+    }
+    //Fall after Jumping to certain height;
+    if (actor_y[0] == 155)
+        actor_dy[0] = 2;
+    
+    //Drawing Player character
+    for (i=0; i<NUM_ACTORS; i++) {
+      byte runseq = actor_x[i] & 7;
+      if (actor_dx[0] >= 0)
+        runseq += 8;
+      oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, layerRunSeq[runseq]);
+      actor_x[i] += actor_dx[i];
+      //Protoype for jumping
+      if(actor_y[i] <= 191)
+      actor_y[i] += actor_dy[i];
+      //Set actor back on Plane after jumping if he falls too far
+      if(actor_y[i] >= 191)
+        actor_y[i] = 191;
+     
+    }
+    
+    //Drawing BEAR enemy
+    if(score > 10){					
+      enemy_y=191;
+    for (i=0; i<1; i++) {
+      byte runseq = enemy_x & 7;
+      if (enemy_dx >= 0)
+        runseq += 8;
+      oam_id = oam_meta_spr(enemy_x, enemy_y, oam_id, bearRunSeq[runseq]);
+      enemy_x += enemy_dx;
+    }
+    }
+    
+    
+/***************************************************** COPY HERE (F) *****************/
+    //Drawing BIRD enemy, after score is past 20pts
+    
+    if(score >= 0){
+      
+    for (i=0; i<1; i++) {
+     
+      
+      byte runseq = enemyBird_x & 7; 
+      if(enemyBird_y == 200)
+        enemyBird_dy = -1;
+      if(enemyBird_y == 150)
+        enemyBird_dy = 1;
+      if (enemyBird_dx >= 0)
+        runseq += 8;
+      oam_id = oam_meta_spr(enemyBird_x, enemyBird_y, oam_id, birdFlySeq[runseq]);
+      enemyBird_x += enemyBird_dx + 1;
+      enemyBird_y += enemyBird_dy;
+      
+      
+    }
+    }
+/***************************************************** COPY HERE (F) *****************/
+    
+    
+    
+    //Draws and updates hearts for lives
+    for(i=0;i<lives;i++)
+      oam_id = oam_spr(10+(i*10), 10, 23, 1, oam_id);
+
+    //Draws and updates Scoreboard
+    oam_id = oam_spr(232, 10, (score/10%10)+48, 2, oam_id);
+    oam_id = oam_spr(240, 10, (score%10)+48, 2, oam_id);
+    
+    for(i = 0; i<4; i++)
+     if(Fruits[i].sprite==20)
+     oam_id = oam_spr(Fruits[i]._x, Fruits[i]._y, Fruits[i].sprite, 2, oam_id);
+    else
+      oam_id = oam_spr(Fruits[i]._x, Fruits[i]._y, Fruits[i].sprite, 1, oam_id);
+      
+
+    for(i=0;i<4;i++){
+      if(rndint(1,200)==1)		//Fruit Hangs on tree for random set of rime
+        Fruits[i].falling = true;
+      
+      if(Fruits[i].falling)		//Set Fruit Fall speed 
+      	Fruits[i]._dy = rndint(1,3);
+        
+      Fruits[i]._y += Fruits[i]._dy;	//Make Fruit Fall
+      fruit_collision(i);		// Check Collsion with Player
+    }	
+    
+    //Enemy bear collision
+      if(enemy_y >= 210 || ((enemy_x >= actor_x[0]-4 && enemy_x <= actor_x[0]+8)&& (enemy_y >= actor_y[0]-2 && enemy_y <= actor_y[0]+4))){
+       lives--;
+       sfx_play(2,0);
+       enemy_x = 0;
+       delay(20);
+      }
+    
+
+/***************************************************** COPY HERE (G) *****************/
+    //Enemy Bird collision
+      if(enemyBird_y >= 210 || ((enemyBird_x >= actor_x[0]-4 && enemyBird_x <= actor_x[0]+8)&& (enemyBird_y >= actor_y[0]-2 && enemyBird_y <= actor_y[0]+4))){
+       lives--;
+       sfx_play(2,0);
+       enemyBird_x = 250;
+        delay(20);
+      }
+    
+/***************************************************** COPY HERE (G) *****************/    
+    
+    // hide rest of sprites
+    // if we haven't wrapped oam_id around to 0
+    if (oam_id!=0) oam_hide_rest(oam_id);
+    // wait for next frame
+    ppu_wait_frame();
+
+    
+    	//Win Conditions
+      if (score >= 10){
+        cleared[1] = true;
+  	level_screen(level_select_pal,level_select_rle);
+      }
+    
+      //Lose Conditions
+      if (lives == 0){
+
+  	level_screen(level_select_pal,level_select_rle);
+    }
+  }
+  while(1){}
 }
