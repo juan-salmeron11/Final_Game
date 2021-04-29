@@ -596,6 +596,7 @@ void title(void);
 void show_screen(const byte* pal, const byte* rle,const byte* rle2);
 byte rndint(byte, byte);
 void fruit_collision(int,);
+void ending(void);
 
 
 
@@ -608,10 +609,11 @@ void main(void)
   }
   
   //Play Menu Theme
+  setup_graphics();
   title();
   famitone_init(menu_theme_music_data);
   nmi_set_callback(famitone_update);  
-  setup_graphics();
+  
   level_screen(level_select_pal,level_select_rle);
 }
 
@@ -750,6 +752,7 @@ void show_title_screen(int x) {
    river();
   }
   else{
+    ending();
   }
   ppu_on_all();
   while(1){
@@ -1625,4 +1628,109 @@ void title(){
 }
 }
 
+int x;
+void ending(){ 
+
+  actor_x[0] = 0;
+  actor_y[0] = 191;
+  actor_dx[0] = 2;
+  actor_dy[0] = 0; 
+  
+  ppu_off();
+  // set palette, virtual bright to 0 (total black)
+  pal_bg(fruit_background_pal);
+  
+  // unpack nametable into the VRAM
+  vram_adr(0x2000);
+  vram_unrle(fruit_background_rle);
+          vram_adr(NTADR_A(10,8));
+        vram_write(" CREATED BY  ", 13); 
+        vram_adr(NTADR_A(10,9));
+        vram_write("JUAN SALMERON", 13); 
+        vram_adr(NTADR_A(10,10));
+        vram_write("DAVID DE LEON", 13);
+  // enable rendering
+  ppu_on_all();
+  
+
+  
+
+  while(actor_x[0] < 235){
+    oam_id =0;
+    for (i=0; i<NUM_ACTORS; i++) {
+      byte runseq = x & 7;
+      if (actor_dx[i] >= 0)
+        runseq += 8;
+      oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, playerRunSeq[runseq]);
+        actor_x[0] += actor_dx[0];
+    }
+    	ppu_wait_frame();
+      	
+    }
+   
+  
+  actor_x[0] = 0;
+  actor_y[0] = 191;
+  actor_dx[0] = 2;
+  actor_dy[0] = 0; 
+  
+  ppu_off();
+  // set palette, virtual bright to 0 (total black)
+  pal_bg(city_back1_pal);
+  
+  // unpack nametable into the VRAM
+  vram_adr(0x2000);
+  vram_unrle(city_back1_rle);
+        vram_adr(NTADR_A(7,21));
+        vram_write("SPECIAL THANKS TO", 17); 
+        vram_adr(NTADR_A(5,22));
+        vram_write("SENIOR PROJECT DISCORD", 22); 
+
+  // enable rendering
+  ppu_on_all();
+  
+    while(actor_x[0] < 235){
+    oam_id =0;
+    for (i=0; i<NUM_ACTORS; i++) {
+      byte runseq = x & 7;
+      if (actor_dx[i] >= 0)
+        runseq += 8;
+      oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, playerRunSeq[runseq]);
+        actor_x[0] += actor_dx[0];
+    }
+    	ppu_wait_frame();
+      	
+    }
+    actor_x[0] = 0;
+  actor_y[0] = 191;
+  actor_dx[0] = 2;
+  actor_dy[0] = 0; 
+  
+  ppu_off();
+  // set palette, virtual bright to 0 (total black)
+  pal_bg(river_pal);
+  
+  // unpack nametable into the VRAM
+  vram_adr(0x2000);
+  vram_unrle(river_rle);
+  vram_adr(NTADR_A(7,5));
+  vram_write("THANKS FOR PLAYING", 18); 
+
+  // enable rendering
+  ppu_on_all();
+  
+    while(actor_x[0] < 235){
+    oam_id =0;
+    for (i=0; i<NUM_ACTORS; i++) {
+      byte runseq = x & 7;
+      if (actor_dx[i] >= 0)
+        runseq += 8;
+      oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, playerRunSeq[runseq]);
+        actor_x[0] += actor_dx[0];
+    }
+    	ppu_wait_frame();
+      	
+    }
+  
+}
 
