@@ -866,12 +866,9 @@ void scroll_background() {
     if(trash_bag == true){						
     for (i=0; i<NUM_ACTORS; i++) {
       
-      int framecounter = 0;
+
       
-      if (framecounter%60 == 0)
-      oam_id = oam_meta_spr(bag_x[i], bag_y[i], oam_id, TrashSeq[0]);    
-      else
-	oam_id = oam_meta_spr(bag_x[i], bag_y[i], oam_id, TrashSeq[1]); 
+       oam_id = oam_meta_spr(bag_x[i], bag_y[i], oam_id, TrashSeq[1]); 
       
       
       if (boat_dx[i] == 0)		//BAG can moves same speed as background
@@ -882,7 +879,7 @@ void scroll_background() {
       else
       bag_x[i] += bag_dx[i] - 1;
       
-      framecounter++;
+      
       
     }
     }
@@ -982,10 +979,11 @@ void scroll_background() {
 
     
 /************* cOLLECT 5 TRASH BAGS TO WIN ***************************************************/
-    if(totalBags == 1){
+    if(totalBags >= 3){
       cleared[2] = true;
       scroll(0,0);
       music_stop();
+      delay(20);
     level_screen(level_select_pal,level_select_rle);
     } 
     
@@ -1016,6 +1014,7 @@ void scroll_background() {
     if (lives <= 0){
       scroll(0,0);
       music_stop();
+      delay(29);
   	level_screen(level_select_pal,level_select_rle);
     }
     }
@@ -1299,12 +1298,16 @@ void city(){
 
 /********************* FOREST STAGE **************************************************************************/
 char pad2;
+bool faceLeft = false;
+
 void forest(){
+  sfx_init(demo_sounds);
   delay(60);
    show_screen_scrolling(fruit_background_pal, fruit_background_rle,fruit_background_rle);
 
   score =0;
-  lives = 1;
+  lives = 3;
+  
   
   
   // Initialize actor fruits
@@ -1363,12 +1366,20 @@ void forest(){
       pad2 = pad_trigger(i);
       pad = pad_poll(i);
       
-      if (pad&PAD_LEFT && actor_x[i]>0) actor_dx[i]=-2;		//Moves player to the left until hits screen border
-      else if (pad&PAD_RIGHT && actor_x[i]<240) actor_dx[i]=2;	//Moves player to the right until hits screen border
+      if (pad&PAD_LEFT && actor_x[i]>0){
+        actor_dx[i]=-2;
+      	faceLeft = true;
+      }
+   
+      else if (pad&PAD_RIGHT && actor_x[i]<240){
+        actor_dx[i]=2;	
+        faceLeft = false;
+      }
       else actor_dx[i]=0;					//Else horizontal acceleration = 0
       
       if (pad2 & PAD_A &&  actor_y[i] == 191)			//Prototype jumping
       { 
+        sfx_play(4,0);
         actor_dy[i]=-2;
       }
             
@@ -1383,19 +1394,38 @@ void forest(){
       byte runseq = actor_x[i] & 7;
       if (actor_dx[0] >= 0)
         runseq += 8;
+      
+      if (faceLeft && actor_dx[0] == 0 && actor_y[i] == 191)
+      oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, layerLRun2);
+      else if (!faceLeft && actor_dx[0] == 0 && actor_y[i] == 191)
+      oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, layerRRun2);
+      
+      else if (!faceLeft && actor_dx[0] != 0 && actor_y[i] < 191)
+      oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, layerRRun3);
+      
+      else if (faceLeft && actor_dx[0] != 0 && actor_y[i] < 191)
+      oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, layerLRun3);
+      
+      else if (faceLeft && actor_dx[0] == 0 && actor_y[i] < 191)
+      oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, layerLRun3);
+      
+      else
       oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, layerRunSeq[runseq]);
+
       actor_x[i] += actor_dx[i];
       //Protoype for jumping
       if(actor_y[i] <= 191)
       actor_y[i] += actor_dy[i];
-      //Set actor back on Plane after jumping if he falls too far
+
+      
+       //Set actor back on Plane after jumping if he falls too far
       if(actor_y[i] >= 191)
         actor_y[i] = 191;
      
     }
     
     //Drawing BEAR enemy
-    if(score > 10){					
+    if(score > 3){					
       enemy_y=191;
     for (i=0; i<1; i++) {
       byte runseq = enemy_x & 7;
@@ -1408,9 +1438,9 @@ void forest(){
     
     
 /***************************************************** COPY HERE (F) *****************/
-    //Drawing BIRD enemy, after score is past 20pts
+    //Drawing BIRD enemy, after score is past 10pts
     
-    if(score >= 0){
+    if(score >= 10){
       
     for (i=0; i<1; i++) {
      
@@ -1462,7 +1492,7 @@ void forest(){
     //Enemy bear collision
       if(enemy_y >= 210 || ((enemy_x >= actor_x[0]-4 && enemy_x <= actor_x[0]+8)&& (enemy_y >= actor_y[0]-2 && enemy_y <= actor_y[0]+4))){
        lives--;
-       sfx_play(2,0);
+       sfx_play(1,0);
        enemy_x = 0;
        delay(20);
       }
@@ -1472,7 +1502,7 @@ void forest(){
     //Enemy Bird collision
       if(enemyBird_y >= 210 || ((enemyBird_x >= actor_x[0]-4 && enemyBird_x <= actor_x[0]+8)&& (enemyBird_y >= actor_y[0]-2 && enemyBird_y <= actor_y[0]+4))){
        lives--;
-       sfx_play(2,0);
+       sfx_play(1,0);
        enemyBird_x = 250;
         delay(20);
       }
@@ -1487,14 +1517,15 @@ void forest(){
 
     
     	//Win Conditions
-      if (score >= 10){
+      if (score >= 40){
         cleared[1] = true;
+        delay(20);
   	level_screen(level_select_pal,level_select_rle);
       }
     
       //Lose Conditions
       if (lives == 0){
-
+	delay(20);
   	level_screen(level_select_pal,level_select_rle);
     }
   }
@@ -1531,7 +1562,7 @@ void fruit_collision(int f){
   if(Fruits[f]._y >= 210 || ((Fruits[f]._x >= actor_x[0]-4 && Fruits[f]._x <= actor_x[0]+8)&& (Fruits[f]._y >= actor_y[0]-2 && Fruits[f]._y <= actor_y[0]+4))) //hits floor or collision detected
       {
         if(Fruits[f]._y < 195){
-          sfx_play(1,1);
+          sfx_play(2,1);
           score += Fruits[f].points;
           Fruits[f]._y = 210;
         }
@@ -1569,194 +1600,7 @@ void fruit_collision(int f){
 
 }
 
-
-
-
-
-
-
-
-
 /************************************MOUNTAIN GAME***********************************************************************/
-
-
-
-
-
-
 void mountain(){
-  delay(60);
-   show_screen_scrolling(fruit_background_pal, fruit_background_rle,fruit_background_rle);
 
-  score =0;
-  lives = 1;
-  
-  
-  // Initialize actor fruits
-  for(i=0;i<4;i++){		
-    Fruits[i].falling = false;		//Controls when fruit falls
-    Fruits[i]._x = rndint(20,230);	//X position
-    Fruits[i]._y = rndint(15,70);	//Y position
-    Fruits[i]._dy = 0;			//Falling Speed
-    Fruits[i].sprite = i+0x29;		//Sprite used
-    Fruits[i].points = i+1;		//Points added when collected
-  }
-  
-  
-  //Place the player in the middle of the screen
-    actor_x[0] = 120;
-    actor_y[0] = 191;
-    actor_dx[0] = 0;
-    actor_dy[0] = 0;
-
-/***************************************************** COPY HERE (E) *****************/
-  //Bird enemy on Right corner of the screen 
-    enemyBird_x = 250;
-    enemyBird_y = 161;
-    enemyBird_dx = -3;	//Delta values are placeholder, they need Sin(x) movement
-    enemyBird_dy = 1;
-  
-/***************************************************** COPY HERE (E) *****************/
-
-  
-  // Initiate Game loop
-  
-  famitone_init(forestSong_music_data);
-  // set music callback function for NMI
-  nmi_set_callback(famitone_update);
-  // play music
-  music_play(0);
-  
-  while (1) {
-    // start with OAMid/sprite 0
-    oam_id = 0;
-    
-    // set player 0/1 velocity based on controller
-    for (i=0; i<1; i++) {
-      // poll controller i (0-1)
-      pad2 = pad_trigger(i);
-      pad = pad_poll(i);
-      
-      //Horizontal movement
-      if (pad&PAD_LEFT && actor_x[i]>0) actor_dx[i]=-2;		//Moves player to the left until hits screen border
-      else if (pad&PAD_RIGHT && actor_x[i]<191) actor_dx[i]=2;	//Moves player to the right until hits screen border
-      else actor_dx[i]=0;					//Else horizontal acceleration = 0
-      
-      //Vertical movement
-      if (pad&PAD_UP && actor_y[i]>60) actor_dy[i]= -1;		//Player moves up slowly
-      else if (pad&PAD_DOWN && actor_y[i]<250) actor_dy[i]= 2;	//Player moves down faster than going up
-      else actor_dy[i]=0;					
-    }
-    
-    //Drawing Player character
-    for (i=0; i<NUM_ACTORS; i++) {
-      byte runseq = actor_x[i] & 7;
-      byte runseqY = actor_y[i] & 7;
-      
-      if (actor_dx[0] != 0)
-      {
-        runseq += 8;
-      	oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, climbSeq[runseq]);
-      	actor_x[i] += actor_dx[i];
-      }
-      
-      
-      else if (actor_dy[0] != 0)
-      {
-        runseqY += 8;
-      	oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, climbSeq[runseqY]);
-      	actor_x[i] += actor_dx[i];
-      }
-      
-      else
-        oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, climbSeq[runseq]);
-      
-      if(actor_y[i] <= 191)
-      actor_y[i] += actor_dy[i];     
-    }
-    
-    
-    //Drawing BIRD enemy, after score is past 20pts
-    
-    if(score >= 0){
-      
-    for (i=0; i<1; i++) {
-     
-      
-      byte runseq = enemyBird_x & 7; 
-      if(enemyBird_y == 200)
-        enemyBird_dy = -1;
-      if(enemyBird_y == 150)
-        enemyBird_dy = 1;
-      if (enemyBird_dx >= 0)
-        runseq += 8;
-      oam_id = oam_meta_spr(enemyBird_x, enemyBird_y, oam_id, birdFlySeq[runseq]);
-      enemyBird_x += enemyBird_dx + 1;
-      enemyBird_y += enemyBird_dy;
-      
-      
-    }
-    }
-/***************************************************** COPY HERE (F) *****************/
-    
-    
-    
-    //Draws and updates hearts for lives
-    for(i=0;i<lives;i++)
-      oam_id = oam_spr(10+(i*10), 10, 23, 1, oam_id);
-
-    //Draws and updates Scoreboard
-    oam_id = oam_spr(232, 10, (score/10%10)+48, 2, oam_id);
-    oam_id = oam_spr(240, 10, (score%10)+48, 2, oam_id);
-    
-    for(i = 0; i<4; i++)
-     if(Fruits[i].sprite==20)
-     oam_id = oam_spr(Fruits[i]._x, Fruits[i]._y, Fruits[i].sprite, 2, oam_id);
-    else
-      oam_id = oam_spr(Fruits[i]._x, Fruits[i]._y, Fruits[i].sprite, 1, oam_id);
-      
-
-    for(i=0;i<4;i++){
-      if(rndint(1,200)==1)		//Fruit Hangs on tree for random set of rime
-        Fruits[i].falling = true;
-      
-      if(Fruits[i].falling)		//Set Fruit Fall speed 
-      	Fruits[i]._dy = rndint(1,3);
-        
-      Fruits[i]._y += Fruits[i]._dy;	//Make Fruit Fall
-      fruit_collision(i);		// Check Collsion with Player
-    }	
-    
-    
-/***************************************************** COPY HERE (G) *****************/
-    //Enemy Bird collision
-      if(enemyBird_y >= 210 || ((enemyBird_x >= actor_x[0]-4 && enemyBird_x <= actor_x[0]+8)&& (enemyBird_y >= actor_y[0]-2 && enemyBird_y <= actor_y[0]+4))){
-       lives--;
-       sfx_play(2,0);
-       enemyBird_x = 250;
-        delay(20);
-      }
-    
-/***************************************************** COPY HERE (G) *****************/    
-    
-    // hide rest of sprites
-    // if we haven't wrapped oam_id around to 0
-    if (oam_id!=0) oam_hide_rest(oam_id);
-    // wait for next frame
-    ppu_wait_frame();
-
-    
-    	//Win Conditions
-      if (score >= 10){
-        cleared[1] = true;
-  	level_screen(level_select_pal,level_select_rle);
-      }
-    
-      //Lose Conditions
-      if (lives == 0){
-
-  	level_screen(level_select_pal,level_select_rle);
-    }
-  }
-  while(1){}
 }
