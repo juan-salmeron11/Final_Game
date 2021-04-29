@@ -821,7 +821,11 @@ void scroll_background() {
   
   // infinite loop
   while (1) {
-  
+      
+      //Drawing hearts on screen
+    for(i=0;i<lives;i++)
+      oam_id = oam_spr(10+(i*10), 10, 23, 0, oam_id);
+    
       oam_id = 0;
     
     // set player 0/1 velocity based on controller
@@ -1226,7 +1230,7 @@ void scroll_background_city() {
       
     }
     if(progress %300 ==0) p+=5;
-    if(p == 10){
+    if(p == 100){
       cleared[0] = true;
       scroll(0,0);
       music_stop();
@@ -1261,11 +1265,15 @@ void scroll_background_city() {
     
     //End game when lives run out PLACE HOLDER
     if (fuel == 0)
-{
-      scroll(0,0);
-      music_stop();
+	{
+      	scroll(0,0);
+      	music_stop();
+  	fuel = 1000;
+  	progress,p = 0;
+  	time = 1000;
   	level_screen(level_select_pal,level_select_rle);
-    }    }
+    	}    
+  }
 }
 
 
@@ -1465,11 +1473,11 @@ void forest(){
     
     //Draws and updates hearts for lives
     for(i=0;i<lives;i++)
-      oam_id = oam_spr(10+(i*10), 10, 23, 1, oam_id);
+      oam_id = oam_spr(10+(i*10), 10, 23, 0, oam_id);
 
     //Draws and updates Scoreboard
-    oam_id = oam_spr(232, 10, (score/10%10)+48, 2, oam_id);
-    oam_id = oam_spr(240, 10, (score%10)+48, 2, oam_id);
+    oam_id = oam_spr(232, 10, (score/10%10)+48, 0, oam_id);
+    oam_id = oam_spr(240, 10, (score%10)+48, 0, oam_id);
     
     for(i = 0; i<4; i++)
      if(Fruits[i].sprite==20)
@@ -1517,7 +1525,7 @@ void forest(){
 
     
     	//Win Conditions
-      if (score >= 40){
+      if (score >= 25){
         cleared[1] = true;
         delay(20);
   	level_screen(level_select_pal,level_select_rle);
@@ -1604,12 +1612,14 @@ void title(){
 
    show_screen(title_pal,title_rle,title_rle);
    while(1){
+   
+
    pad = pad_trigger(i);
    if(pad & PAD_START)
-   {
-      ppu_off();
+   {     
+     ppu_off();
      ppu_wait_frame();
-      break;
+     break;
     }
   
 }
