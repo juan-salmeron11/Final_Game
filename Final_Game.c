@@ -1629,8 +1629,14 @@ void title(){
 }
 
 int x;
-void ending(){ 
 
+
+
+
+void ending(){ 
+	famitone_init(forestSong_music_data);
+  	nmi_set_callback(famitone_update); 
+  	music_play(0);
   actor_x[0] = 0;
   actor_y[0] = 191;
   actor_dx[0] = 2;
@@ -1651,24 +1657,23 @@ void ending(){
         vram_write("DAVID DE LEON", 13);
   // enable rendering
   ppu_on_all();
-  
-
+ 
   
 
   while(actor_x[0] < 235){
     oam_id =0;
     for (i=0; i<NUM_ACTORS; i++) {
-      byte runseq = x & 7;
-      if (actor_dx[i] >= 0)
+      byte runseq = actor_x[i] & 7;
+	if (actor_dx[0] >= 0)
         runseq += 8;
-      oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, playerRunSeq[runseq]);
+      oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, layerRunSeq[runseq]);
         actor_x[0] += actor_dx[0];
     }
     	ppu_wait_frame();
       	
     }
    
-  
+
   actor_x[0] = 0;
   actor_y[0] = 191;
   actor_dx[0] = 2;
@@ -1692,7 +1697,7 @@ void ending(){
     while(actor_x[0] < 235){
     oam_id =0;
     for (i=0; i<NUM_ACTORS; i++) {
-      byte runseq = x & 7;
+      byte runseq = actor_x[i] & 7;
       if (actor_dx[i] >= 0)
         runseq += 8;
       oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, playerRunSeq[runseq]);
@@ -1701,7 +1706,8 @@ void ending(){
     	ppu_wait_frame();
       	
     }
-    actor_x[0] = 0;
+  
+  actor_x[0] = 0;
   actor_y[0] = 191;
   actor_dx[0] = 2;
   actor_dy[0] = 0; 
@@ -1719,18 +1725,21 @@ void ending(){
   // enable rendering
   ppu_on_all();
   
-    while(actor_x[0] < 235){
+    while(actor_x[0] < 240){
     oam_id =0;
     for (i=0; i<NUM_ACTORS; i++) {
-      byte runseq = x & 7;
+      byte runseq = actor_x[i] & 7;
       if (actor_dx[i] >= 0)
         runseq += 8;
-      oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, playerRunSeq[runseq]);
+      	oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, boatRunSeq[runseq]);	
         actor_x[0] += actor_dx[0];
     }
     	ppu_wait_frame();
       	
     }
-  
+    
+  ppu_off();
+  delay(1000);
+  music_stop();
 }
 
