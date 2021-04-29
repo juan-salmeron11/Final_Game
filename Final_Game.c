@@ -1603,10 +1603,6 @@ void mountain(){
   }
   
   
-//  famitone_init(effects);
-//  sfx_init(effects);
-//  nmi_set_callback(famitone_update);
-  
   //Place the player in the middle of the screen
     actor_x[0] = 120;
     actor_y[0] = 191;
@@ -1625,7 +1621,7 @@ void mountain(){
   
   // Initiate Game loop
   
-  famitone_init(danger_streets_music_data);
+  famitone_init(forestSong_music_data);
   // set music callback function for NMI
   nmi_set_callback(famitone_update);
   // play music
