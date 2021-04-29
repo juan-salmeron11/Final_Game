@@ -41,6 +41,9 @@ extern const byte mountain_rle[];
 //#link "demosounds.s"
 //#link "boatSong.s"
 //#link "music_dangerstreets.s"
+//#link "forestSong.s"
+
+extern char forestSong_music_data[];
 extern char boatSong_music_data[];
 extern char demo_sounds[];
 extern char sfx_sounds[];
@@ -1293,6 +1296,8 @@ void city(){
   
 }
 
+
+/********************* FOREST STAGE **************************************************************************/
 char pad2;
 void forest(){
   delay(60);
@@ -1342,7 +1347,7 @@ void forest(){
   
   // Initiate Game loop
   
-  famitone_init(danger_streets_music_data);
+  famitone_init(forestSong_music_data);
   // set music callback function for NMI
   nmi_set_callback(famitone_update);
   // play music
