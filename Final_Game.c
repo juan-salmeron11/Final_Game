@@ -1607,13 +1607,6 @@ void mountain(){
     actor_y[0] = 191;
     actor_dx[0] = 0;
     actor_dy[0] = 0;
-  
-  
-  //Bear enemy on the corner of the screen
-    enemy_x = 0;
-    enemy_y = 100;
-    enemy_dx = 2;
-    enemy_dy = 0;
 
 /***************************************************** COPY HERE (E) *****************/
   //Bird enemy on Right corner of the screen 
@@ -1643,51 +1636,45 @@ void mountain(){
       pad2 = pad_trigger(i);
       pad = pad_poll(i);
       
+      //Horizontal movement
       if (pad&PAD_LEFT && actor_x[i]>0) actor_dx[i]=-2;		//Moves player to the left until hits screen border
-      else if (pad&PAD_RIGHT && actor_x[i]<240) actor_dx[i]=2;	//Moves player to the right until hits screen border
+      else if (pad&PAD_RIGHT && actor_x[i]<191) actor_dx[i]=2;	//Moves player to the right until hits screen border
       else actor_dx[i]=0;					//Else horizontal acceleration = 0
       
-      if (pad2 & PAD_A &&  actor_y[i] == 191)			//Prototype jumping
-      { 
-        actor_dy[i]=-2;
-      }
-            
-      
+      //Vertical movement
+      if (pad&PAD_UP && actor_y[i]>60) actor_dy[i]= -1;		//Player moves up slowly
+      else if (pad&PAD_DOWN && actor_y[i]<250) actor_dy[i]= 2;	//Player moves down faster than going up
+      else actor_dy[i]=0;					
     }
-    //Fall after Jumping to certain height;
-    if (actor_y[0] == 155)
-        actor_dy[0] = 2;
     
     //Drawing Player character
     for (i=0; i<NUM_ACTORS; i++) {
       byte runseq = actor_x[i] & 7;
-      if (actor_dx[0] >= 0)
+      byte runseqY = actor_y[i] & 7;
+      
+      if (actor_dx[0] != 0)
+      {
         runseq += 8;
-      oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, climbSeq[runseq]);
-      actor_x[i] += actor_dx[i];
-      //Protoype for jumping
+      	oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, climbSeq[runseq]);
+      	actor_x[i] += actor_dx[i];
+      }
+      
+      
+      else if (actor_dy[0] != 0)
+      {
+        runseqY += 8;
+      	oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, climbSeq[runseqY]);
+      	actor_x[i] += actor_dx[i];
+      }
+      
+      else
+        oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, climbSeq[runseq]);
+      
       if(actor_y[i] <= 191)
-      actor_y[i] += actor_dy[i];
-      //Set actor back on Plane after jumping if he falls too far
-      if(actor_y[i] >= 191)
-        actor_y[i] = 191;
-     
-    }
-    
-    //Drawing BEAR enemy
-    if(score > 10){					
-      enemy_y=191;
-    for (i=0; i<1; i++) {
-      byte runseq = enemy_x & 7;
-      if (enemy_dx >= 0)
-        runseq += 8;
-      oam_id = oam_meta_spr(enemy_x, enemy_y, oam_id, bearRunSeq[runseq]);
-      enemy_x += enemy_dx;
-    }
+      actor_y[i] += actor_dy[i];     
     }
     
     
-/***************************************************** COPY HERE (F) *****************/
     //Drawing BIRD enemy, after score is past 20pts
     
     if(score >= 0){
@@ -1739,15 +1726,7 @@ void mountain(){
       fruit_collision(i);		// Check Collsion with Player
     }	
     
-    //Enemy bear collision
-      if(enemy_y >= 210 || ((enemy_x >= actor_x[0]-4 && enemy_x <= actor_x[0]+8)&& (enemy_y >= actor_y[0]-2 && enemy_y <= actor_y[0]+4))){
-       lives--;
-       sfx_play(2,0);
-       enemy_x = 0;
-       delay(20);
-      }
     
-
 /***************************************************** COPY HERE (G) *****************/
     //Enemy Bird collision
       if(enemyBird_y >= 210 || ((enemyBird_x >= actor_x[0]-4 && enemyBird_x <= actor_x[0]+8)&& (enemyBird_y >= actor_y[0]-2 && enemyBird_y <= actor_y[0]+4))){
