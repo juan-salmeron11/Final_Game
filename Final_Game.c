@@ -563,7 +563,7 @@ char oam_id;
 int j;
 int arrow_x =25;
 int arrow_y =70;
-bool cleared[4];
+bool cleared[3];
 int score;
 
 /*{pal:"nes",layout:"nes"}*/
@@ -604,7 +604,7 @@ void ending(void);
 
 void main(void)
 {
-  for(j = 0;j<4;j++){
+  for(j = 0;j<3;j++){
     cleared[j] = false;
   }
   
@@ -662,11 +662,11 @@ void level_screen(const byte* pal, const byte* rle) {
         vram_adr(NTADR_A(5,22));
         vram_write("        ", 8);
       }
-      if(j == 3){
+      if(cleared[0] ==true  && cleared[1] ==true  && cleared[2] ==true){
         vram_adr(NTADR_A(19,20));
         vram_write("        ", 8); 
         vram_adr(NTADR_A(19,21));
-        vram_write(" CLEAR  ", 8); 
+        vram_write(" ENDING  ", 9); 
         vram_adr(NTADR_A(19,22));
         vram_write("        ", 8);
       }
@@ -715,22 +715,30 @@ void menu_controls(){
   
   //Select Choice sfx
   if (pad & PAD_START) {
-    	music_stop();
-    	sfx_init(sfx_sounds);
-      	sfx_play(1,0);
     if (arrow_x == 25 && arrow_y ==70){
-      
+      music_stop();
+      sfx_init(sfx_sounds);
+      sfx_play(1,0);
       show_title_screen(0);
     
     }
     else if (arrow_x == 138 && arrow_y ==70){
-    show_title_screen(1);}
+      music_stop();
+    sfx_init(sfx_sounds);
+      sfx_play(1,0);
+      show_title_screen(1);}
     else if (arrow_x == 25 && arrow_y ==165){
-    show_title_screen(2);}
-    else{
-    show_title_screen(3);}
-    }
-                   
+      music_stop();
+      sfx_init(sfx_sounds);
+      sfx_play(1,0);
+      show_title_screen(2);}
+
+      if(cleared[0] ==true  && cleared[1] ==true  && cleared[2] ==true){
+        music_stop();
+    	sfx_init(sfx_sounds);
+      	sfx_play(1,0);
+        show_title_screen(3);}
+                       }
 }
 
 
@@ -740,29 +748,35 @@ void show_title_screen(int x) {
   vram_fill(0,1024);
   oam_clear();
   if(x==0){
-    	//vram_adr(NTADR_A(11,14));
-  	//vram_write("City Level", 10);
-    	city();
+    vram_adr(NTADR_A(8,14));
+    vram_write("REACH THE GOAL", 14);
+    ppu_on_all();
+    delay(100);
+    city();
 
   }
-  else   if(x==1){
- 	forest();
+  else if(x==1){
+    vram_adr(NTADR_A(8,14));
+    vram_write("SCORE 30 POINTS", 15);
+    vram_adr(NTADR_A(7,15));
+    vram_write("BY CATCHING FRUIT", 17);
+    ppu_on_all();
+    delay(100);
+    forest();
   }
-  else   if(x==2){
-   river();
+  else if(x==2){
+    vram_adr(NTADR_A(6,14));
+    vram_write("COLLECT 3 TRASH BAGS", 20);
+    ppu_on_all();
+    delay(100);
+    river();
   }
-  else{
+  else if(x==3 && cleared[0] ==true  && cleared[1] ==true  && cleared[2] ==true){
     ending();
   }
+  
   ppu_on_all();
-  while(1){
-  pad = pad_trigger(i);
-  if(pad&PAD_START){
-  sfx_init(demo_sounds);
-    cleared[x] = true;
-  level_screen(level_select_pal,level_select_rle);
 
-  }};
 }
 
 void show_screen_scrolling(const byte* pal, const byte* rle,const byte* rle2) {
@@ -1233,7 +1247,7 @@ void scroll_background_city() {
       
     }
     if(progress %300 ==0) p+=5;
-    if(p == 100){
+    if(p == 60){
       cleared[0] = true;
       scroll(0,0);
       music_stop();
@@ -1612,21 +1626,16 @@ void fruit_collision(int f){
 }
 
 void title(){ 
-	famitone_init(forestSong_music_data);
-  	nmi_set_callback(famitone_update); 
-  	music_play(0);
-  sfx_init(demo_sounds);
+
    show_screen(title_pal,title_rle,title_rle);
    while(1){
    
 
    pad = pad_trigger(i);
    if(pad & PAD_START)
-   {  sfx_play(1,0);   
+   {     
      ppu_off();
      ppu_wait_frame();
-     
-     delay(40);
      break;
     }
   
@@ -1672,7 +1681,7 @@ void ending(){
 	if (actor_dx[0] >= 0)
         runseq += 8;
       oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, layerRunSeq[runseq]);
-        actor_x[0] += actor_dx[0];
+        actor_x[0] += 1;
     }
     	ppu_wait_frame();
       	
