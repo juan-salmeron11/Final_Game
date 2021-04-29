@@ -605,7 +605,7 @@ void ending(void);
 void main(void)
 {
   for(j = 0;j<3;j++){
-    cleared[j] = false;
+    cleared[j] =true;
   }
   
   //Play Menu Theme
@@ -1702,8 +1702,8 @@ void ending(){
   vram_unrle(city_back1_rle);
         vram_adr(NTADR_A(7,21));
         vram_write("SPECIAL THANKS TO", 17); 
-        vram_adr(NTADR_A(5,22));
-        vram_write("SENIOR PROJECT DISCORD", 22); 
+        vram_adr(NTADR_A(4,22));
+        vram_write("CLASSIC GAME JAM DISCORD", 24); 
 
   // enable rendering
   ppu_on_all();
