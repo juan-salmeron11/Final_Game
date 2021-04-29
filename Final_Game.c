@@ -17,14 +17,15 @@
 //#link "city_back1.s"
 //#link "city_back2.s"
 //#link "fruit_background.s"
-//#link "mountain.s"
+//#link "game_title.s"
 
 extern const byte city_back1_pal[16];
 extern const byte city_back1_rle[];
 extern const byte city_back2_rle[];
 extern const byte fruit_background_pal[16];
 extern const byte fruit_background_rle[];
-extern const byte mountain_rle[];
+extern const byte title_rle[];
+extern const byte title_pal[16];
 
 // BCD arithmetic support
 #include "bcd.h"
@@ -588,11 +589,10 @@ void menu_controls(void);
 void river(void);
 void city(void);
 void forest(void);
-void mountain(void);
 void scroll_background(void);
 void scroll_background_city(void);
 void show_screen_scrolling(const byte* pal, const byte* rle,const byte* rle2);
-
+void title(void);
 void show_screen(const byte* pal, const byte* rle,const byte* rle2);
 byte rndint(byte, byte);
 void fruit_collision(int,);
@@ -608,6 +608,7 @@ void main(void)
   }
   
   //Play Menu Theme
+  title();
   famitone_init(menu_theme_music_data);
   nmi_set_callback(famitone_update);  
   setup_graphics();
@@ -749,7 +750,6 @@ void show_title_screen(int x) {
    river();
   }
   else{
-	mountain();
   }
   ppu_on_all();
   while(1){
@@ -1600,7 +1600,19 @@ void fruit_collision(int f){
 
 }
 
-/************************************MOUNTAIN GAME***********************************************************************/
-void mountain(){
+void title(){ 
 
+   show_screen(title_pal,title_rle,title_rle);
+   while(1){
+   pad = pad_trigger(i);
+   if(pad & PAD_START)
+   {
+      ppu_off();
+     ppu_wait_frame();
+      break;
+    }
+  
 }
+}
+
+
