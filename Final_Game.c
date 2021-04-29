@@ -1612,16 +1612,21 @@ void fruit_collision(int f){
 }
 
 void title(){ 
-
+	famitone_init(forestSong_music_data);
+  	nmi_set_callback(famitone_update); 
+  	music_play(0);
+  sfx_init(demo_sounds);
    show_screen(title_pal,title_rle,title_rle);
    while(1){
    
 
    pad = pad_trigger(i);
    if(pad & PAD_START)
-   {     
+   {  sfx_play(1,0);   
      ppu_off();
      ppu_wait_frame();
+     
+     delay(40);
      break;
     }
   
