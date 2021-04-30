@@ -1253,7 +1253,7 @@ void scroll_background_city() {
       music_stop();
     level_screen(level_select_pal,level_select_rle);
     } 
-    oam_id = oam_spr(100+ p, 10, 26, 2, oam_id);// change this sprite to an icon
+    oam_id = oam_spr(100+ p, 10, 26, 1, oam_id);// change this sprite to an icon
     oam_id = oam_spr(160, 10, 25, 1, oam_id);
     
     x +=2;
